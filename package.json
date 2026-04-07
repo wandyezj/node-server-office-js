@@ -7,8 +7,10 @@
     "build": "tsc",
     "start": "node ./dist/index.js",
     "dev": "npm run build && npm start",
-    "test": "playwright test --config ./configs/playwright.config.ts",
-    "test:ui": "playwright test --config ./configs/playwright.config.ts --ui"
+    "style": "prettier --config ./config/prettier.json --write \"@(src|test)/**/*.@(ts|tsx|js|md|html|css|json)\"",
+    "style-check": "prettier --config ./config/prettier.json --check \"@(src|test)/**/*.@(ts|tsx|js|md|html|css|json)\"",
+    "test": "playwright test --config ./config/playwright.config.ts",
+    "test:ui": "playwright test --config ./config/playwright.config.ts --ui"
   },
   "repository": {
     "type": "git",
@@ -25,6 +27,7 @@
     "typescript": "^6.0.2"
   },
   "devDependencies": {
-    "@playwright/test": "^1.59.1"
+    "@playwright/test": "^1.59.1",
+    "prettier": "2.8.4"
   }
 }

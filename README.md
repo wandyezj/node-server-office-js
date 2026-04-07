@@ -55,3 +55,17 @@ Run tests with Playwright UI mode:
 ```zsh
 npm run test:ui
 ```
+
+## Formatting (Prettier)
+
+Format source and test files:
+
+```zsh
+npm run style
+```
+
+Check formatting without changing files:
+
+```zsh
+npm run style-check
+```
