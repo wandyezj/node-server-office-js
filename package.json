@@ -4,7 +4,11 @@
   "description": "Node server to execute office.js on an Office Document.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "start": "node ./dist/index.js",
+    "dev": "npm run build && npm start",
+    "test": "playwright test --config ./configs/playwright.config.ts",
+    "test:ui": "playwright test --config ./configs/playwright.config.ts --ui"
   },
   "repository": {
     "type": "git",
@@ -19,5 +23,8 @@
   "dependencies": {
     "@types/node": "^25.5.2",
     "typescript": "^6.0.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1"
   }
 }

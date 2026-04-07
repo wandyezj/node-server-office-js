@@ -1,0 +1,4 @@
+{
+  "playwright.configPath": "configs/playwright.config.ts",
+  "testing.defaultGutterClickAction": "run"
+}
