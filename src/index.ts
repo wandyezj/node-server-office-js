@@ -1,16 +1,63 @@
-import { createServer, IncomingMessage, ServerResponse } from "node:http";
+import * as http from "http";
+import config from "./config.json";
+import { FunctionRequestHandler, FunctionRequestMatcher, handleRequest } from "./handleRequest";
+import { getMatcher } from "./getMatcher";
+console.log("Starting server...");
 
-const port = Number(process.env.PORT) || 3000;
+function gracefulShutdown() {
+    console.log("Shutdown signal received. Closing server...");
+    process.exit(0);
+}
 
-console.log("Server starting...");
+// Ctrl + C
+process.on("SIGINT", gracefulShutdown);
 
-const server = createServer((_req: IncomingMessage, res: ServerResponse) => {
-    res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
-    res.end("Hello World\n");
+export const registry: [FunctionRequestMatcher, FunctionRequestHandler][] = [
+    [
+        // Connectivity check
+        getMatcher({ method: "GET", url: "/" }),
+        (request, response) => {
+            response.writeHead(200, { "Content-Type": "text/plain" });
+            response.write("");
+            response.end();
+        },
+    ],
+    [
+        // Ping
+        getMatcher({ method: "GET", url: "/ping" }),
+        (request, response) => {
+            response.writeHead(200, { "Content-Type": "text/plain" });
+            response.write("pong");
+            response.end();
+        },
+    ],
+];
+
+let requestCount = 0;
+
+// Server Setup
+const server = http.createServer((request, response) => {
+    const method = request.method;
+    const url = request.url;
+    //const test = process.env["TEST"];
+    const origin = request.headers.origin;
+
+    console.log(`Received request [${requestCount++}]: from ${origin} ${method} ${url}`);
+    try {
+        handleRequest(registry, request, response);
+    } catch (error) {
+        console.error("Error handling request:", error);
+        response.writeHead(500, { "Content-Type": "text/plain" });
+        response.write("Internal Server Error");
+        response.end();
+    }
 });
 
-server.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-});
+//
+// Start Listening on port
+//
+const port = process.env.PORT || config.port;
 
-console.log(`https://${process.env.HOST || "localhost"}:${port}`);
+console.log(`Server is listening on port ${port}`);
+
+server.listen(port);

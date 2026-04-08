@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-test("GET / returns Hello World", async ({ request }) => {
-    const response = await request.get("/");
+test("GET / ping", async ({ request }) => {
+    const response = await request.get("/ping");
     expect(response.ok()).toBeTruthy();
 
     const body = await response.text();
-    expect(body).toContain("Hello World");
+    expect(body).toContain("pong");
 });

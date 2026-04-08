@@ -1,33 +1,42 @@
 {
-  "name": "node-server-office-js",
-  "version": "0.0.0",
-  "description": "Node server to execute office.js on an Office Document.",
-  "main": "index.js",
-  "scripts": {
-    "build": "tsc",
-    "start": "node ./dist/index.js",
-    "dev": "npm run build && npm start",
-    "style": "prettier --config ./config/prettier.json --write \"@(src|test)/**/*.@(ts|tsx|js|md|html|css|json)\"",
-    "style-check": "prettier --config ./config/prettier.json --check \"@(src|test)/**/*.@(ts|tsx|js|md|html|css|json)\"",
-    "test": "playwright test --config ./config/playwright.config.ts",
-    "test:ui": "playwright test --config ./config/playwright.config.ts --ui"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/wandyezj/node-server-office-js.git"
-  },
-  "author": "wandyezj",
-  "license": "UNLICENSED",
-  "bugs": {
-    "url": "https://github.com/wandyezj/node-server-office-js/issues"
-  },
-  "homepage": "https://github.com/wandyezj/node-server-office-js#readme",
-  "dependencies": {
-    "@types/node": "^25.5.2",
-    "typescript": "^6.0.2"
-  },
-  "devDependencies": {
-    "@playwright/test": "^1.59.1",
-    "prettier": "2.8.4"
-  }
+    "name": "node-server-office-js",
+    "version": "0.0.0",
+    "description": "Node server to execute office.js on an Office Document.",
+    "main": "index.js",
+    "private": true,
+    "scripts": {
+        "style": "prettier --config ./config/prettier.json --write \"@(src|test)/**/*.@(ts|tsx|js|md|html|css|json)\"",
+        "style-check": "prettier --config ./config/prettier.json --check \"@(src|test)/**/*.@(ts|tsx|js|md|html|css|json)\"",
+        "ping": "ts-node ./scripts/ping.ts",
+        "test": "playwright test --config ./config/playwright.config.ts",
+        "test:ui": "playwright test --config ./config/playwright.config.ts --ui",
+        "clean": "node ./scripts/clean.js dist",
+        "compile": "webpack --config ./config/webpack.config.js --mode production",
+        "watch-compile": "webpack --config ./config/webpack.config.js --mode development --watch",
+        "watch-server": "node --watch ./dist/index.bundle.js",
+        "start": "npm run watch-compile & npm run watch-server"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/wandyezj/node-server-office-js.git"
+    },
+    "author": "wandyezj",
+    "license": "Unlicensed",
+    "bugs": {
+        "url": "https://github.com/wandyezj/node-server-office-js/issues"
+    },
+    "homepage": "https://github.com/wandyezj/node-server-office-js#readme",
+    "dependencies": {},
+    "devDependencies": {
+        "@types/node": "^22.15.2",
+        "typescript": "^6.0.2",
+        "@playwright/test": "^1.59.1",
+        "prettier": "2.8.4",
+        "clean-webpack-plugin": "^4.0.0",
+        "office-addin-dev-certs": "^2.0.6",
+        "ts-loader": "^9.5.4",
+        "ts-node": "^10.9.2",
+        "webpack": "^5.104.1",
+        "webpack-cli": "^6.0.1"
+    }
 }

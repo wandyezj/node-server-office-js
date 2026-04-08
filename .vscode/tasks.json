@@ -1,0 +1,21 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Server Start",
+            "command": "npm",
+            "args": ["run", "start"],
+            "options": {
+                "cwd": "${workspaceFolder}/src/server"
+            }
+        },
+        {
+            "label": "Start",
+            "dependsOn": ["Server Start"],
+            "group": {
+                "kind": "build",
+                "isDefault": true // Makes this the default build task
+            }
+        }
+    ]
+}

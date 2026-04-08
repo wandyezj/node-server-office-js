@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2024",
-    "module": "Node16",
+    "module": "nodenext",
     "moduleResolution": "nodenext",
     "types": ["node"],
     "strict": true,
