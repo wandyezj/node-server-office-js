@@ -5,9 +5,9 @@ export type FunctionRequestMatcher = (request: http.IncomingMessage) => boolean;
 export type FunctionRequestHandler = (
     request: http.IncomingMessage,
     response: http.ServerResponse,
-) => void;
+) => Promise<void>;
 
-export function handleRequest(
+export async function handleRequest(
     registry: readonly (readonly [FunctionRequestMatcher, FunctionRequestHandler])[],
     request: http.IncomingMessage,
     response: http.ServerResponse,
@@ -15,7 +15,7 @@ export function handleRequest(
     for (const [matcher, handler] of registry) {
         if (matcher(request)) {
             console.log(`Matched request: ${request.method} ${request.url}`);
-            handler(request, response);
+            await handler(request, response);
             return; // Stop processing after the first match
         }
     }

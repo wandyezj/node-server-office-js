@@ -2,6 +2,8 @@ import * as http from "http";
 import config from "./config.json";
 import { FunctionRequestHandler, FunctionRequestMatcher, handleRequest } from "./handleRequest";
 import { getMatcher } from "./getMatcher";
+import { openExcelFile } from "./handlers/openExcelFile";
+import { closeExcelFile } from "./handlers/closeExcelFile";
 console.log("Starting server...");
 
 function gracefulShutdown() {
@@ -16,7 +18,7 @@ export const registry: [FunctionRequestMatcher, FunctionRequestHandler][] = [
     [
         // Connectivity check
         getMatcher({ method: "GET", url: "/" }),
-        (request, response) => {
+        async (request, response) => {
             response.writeHead(200, { "Content-Type": "text/plain" });
             response.write("");
             response.end();
@@ -25,18 +27,28 @@ export const registry: [FunctionRequestMatcher, FunctionRequestHandler][] = [
     [
         // Ping
         getMatcher({ method: "GET", url: "/ping" }),
-        (request, response) => {
+        async (request, response) => {
             response.writeHead(200, { "Content-Type": "text/plain" });
             response.write("pong");
             response.end();
         },
+    ],
+    [
+        // Open Excel file
+        getMatcher({ method: "POST", url: "/open-excel-file" }),
+        openExcelFile,
+    ],
+    [
+        // Close Excel file
+        getMatcher({ method: "POST", url: "/close-excel-file" }),
+        closeExcelFile,
     ],
 ];
 
 let requestCount = 0;
 
 // Server Setup
-const server = http.createServer((request, response) => {
+const server = http.createServer(async (request, response) => {
     const method = request.method;
     const url = request.url;
     //const test = process.env["TEST"];
@@ -44,7 +56,7 @@ const server = http.createServer((request, response) => {
 
     console.log(`Received request [${requestCount++}]: from ${origin} ${method} ${url}`);
     try {
-        handleRequest(registry, request, response);
+        await handleRequest(registry, request, response);
     } catch (error) {
         console.error("Error handling request:", error);
         response.writeHead(500, { "Content-Type": "text/plain" });
