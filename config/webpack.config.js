@@ -1,56 +1,62 @@
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
 
 module.exports = async (env, options) => {
-    //console.log(env);
-
     const isDevelopment = options.mode === "development";
-    const config = {
-        target: "node",
-        // no source maps for production
-        devtool: isDevelopment ? "inline-source-map" : undefined,
 
-        // Ignore file size violation hints
-        performance: {
-            hints: false,
-        },
-        devServer: {
-            static: {
-                directory: path.join(__dirname, "..", "dist"),
-            },
-        },
-        entry: {
-            index: "./src/index.ts",
-        },
+    const cleanConfig = {
+        plugins: [new CleanWebpackPlugin()],
+    };
+
+    const serverConfig = {
+        target: "node",
+        devtool: isDevelopment ? "inline-source-map" : undefined,
+        performance: { hints: false },
+        entry: { index: "./src/index.ts" },
         output: {
             filename: "[name].bundle.js",
             path: path.resolve(__dirname, "..", "dist"),
         },
-        optimization: {
-            runtimeChunk: "single",
-            splitChunks: {
-                chunks: "all",
-            },
-        },
-        resolve: {
-            extensions: [".ts", ".json", ".js"],
-        },
-
+        resolve: { extensions: [".ts", ".json", ".js"] },
         module: {
-            rules: [
-                {
-                    test: /\.(ts|tsx)$/,
-                    loader: "ts-loader",
-                },
-            ],
+            rules: [{ test: /\.(ts|tsx)$/, loader: "ts-loader" }],
         },
-        plugins: [new CleanWebpackPlugin()],
+        watch: isDevelopment,
     };
 
-    // Only need to watch in development mode
-    if (options.mode === "development") {
-        config.watch = true;
-    }
+    const addinConfig = {
+        target: "web",
+        devtool: isDevelopment ? "inline-source-map" : undefined,
+        performance: { hints: false },
+        entry: { addin: "./addin/index.ts" },
+        output: {
+            filename: "[name].bundle.js",
+            path: path.resolve(__dirname, "..", "dist"),
+        },
+        resolve: { extensions: [".ts", ".json", ".js"] },
+        module: {
+            rules: [{ test: /\.(ts|tsx)$/, loader: "ts-loader" }],
+        },
+        plugins: [
+            new HtmlWebpackPlugin({
+                filename: "taskpane.html",
+                chunks: ["addin"],
+                inject: false,
+                templateContent: ({ htmlWebpackPlugin, compilation }) => {
+                    const scripts = htmlWebpackPlugin.files.js
+                        .map((jsPath) => {
+                            const assetName = jsPath.replace(/^\//, "");
+                            const source = compilation.assets[assetName]?.source() ?? "";
+                            return `<script>${source}</script>`;
+                        })
+                        .join("\n    ");
+                    return `<!DOCTYPE html>\n<html>\n<head>\n    <title>Addin</title>\n    ${scripts}\n</head>\n<body></body>\n</html>`;
+                },
+            }),
+        ],
+        watch: isDevelopment,
+    };
 
-    return config;
+    return [addinConfig, serverConfig];
 };

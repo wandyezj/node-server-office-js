@@ -4,6 +4,7 @@ import { FunctionRequestHandler, FunctionRequestMatcher, handleRequest } from ".
 import { getMatcher } from "./getMatcher";
 import { openExcelFile } from "./handlers/openExcelFile";
 import { closeExcelFile } from "./handlers/closeExcelFile";
+import { getTaskpaneHtml } from "./handlers/taskpane";
 console.log("Starting server...");
 
 function gracefulShutdown() {
@@ -42,6 +43,11 @@ export const registry: [FunctionRequestMatcher, FunctionRequestHandler][] = [
         // Close Excel file
         getMatcher({ method: "POST", url: "/close-excel-file" }),
         closeExcelFile,
+    ],
+    [
+        // Get taskpane.html
+        getMatcher({ method: "GET", url: "/taskpane.html" }),
+        getTaskpaneHtml,
     ],
 ];
 
