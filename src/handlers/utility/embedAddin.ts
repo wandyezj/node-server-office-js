@@ -27,7 +27,7 @@ export function embedAddIn(excelPath: string, manifestPath: string, outputPath: 
     // 2. Create xl/webextensions/webextension1.xml
     const webExtXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <we:webextension xmlns:we="http://schemas.microsoft.com/office/webextensions/webextension/2010/11" id="{${addInId}}">
-  <we:reference id="${addInId}" version="${version}" store="developer" storeType="Registry"/>
+  <we:reference id="{${addInId}}" version="${version}" store="developer" storeType="Registry"/>
   <we:alternateReferences/>
   <we:properties>
     <we:property name="Office.AutoShowTaskpaneWithDocument" value="true"/>
@@ -52,30 +52,30 @@ export function embedAddIn(excelPath: string, manifestPath: string, outputPath: 
 </Relationships>`;
     zip.addFile("xl/webextensions/_rels/taskpanes.xml.rels", Buffer.from(taskpaneRelsXml));
 
-    // 5. Update xl/_rels/workbook.xml.rels
-    const workbookRelsPath = "xl/_rels/workbook.xml.rels";
-    const workbookRelsDoc = parser.parseFromString(zip.readAsText(workbookRelsPath), "text/xml");
-    const relsRoot = workbookRelsDoc.getElementsByTagName("Relationships")[0];
+    // 5. Update _rels/.rels (package-level rels)
+    const rootRelsPath = "_rels/.rels";
+    const rootRelsDoc = parser.parseFromString(zip.readAsText(rootRelsPath), "text/xml");
+    const relsRoot = rootRelsDoc.getElementsByTagName("Relationships")[0];
 
     // Check if relationship already exists to avoid duplicates
-    const existingRels = Array.from(workbookRelsDoc.getElementsByTagName("Relationship"));
+    const existingRels = Array.from(rootRelsDoc.getElementsByTagName("Relationship"));
     const hasRel = existingRels.some(
-        (r) => r.getAttribute("Target") === "webextensions/taskpanes.xml",
+        (r) => r.getAttribute("Target") === "xl/webextensions/taskpanes.xml",
     );
 
     if (!hasRel) {
-        const newRel = workbookRelsDoc.createElement("Relationship");
+        const newRel = rootRelsDoc.createElement("Relationship");
         const newId = `rIdWebExt${Math.floor(Math.random() * 10000)}`; // Simple unique ID
         newRel.setAttribute("Id", newId);
         newRel.setAttribute(
             "Type",
             "http://schemas.microsoft.com/office/2011/relationships/webextensiontaskpanes",
         );
-        newRel.setAttribute("Target", "webextensions/taskpanes.xml");
+        newRel.setAttribute("Target", "xl/webextensions/taskpanes.xml");
         relsRoot.appendChild(newRel);
         zip.updateFile(
-            workbookRelsPath,
-            Buffer.from(serializer.serializeToString(workbookRelsDoc)),
+            rootRelsPath,
+            Buffer.from(serializer.serializeToString(rootRelsDoc)),
         );
     }
 
