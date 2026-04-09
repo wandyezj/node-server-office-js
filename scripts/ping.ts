@@ -36,9 +36,11 @@ const { values, positionals } = parseArgs({
     },
 });
 
+const baseUrl = `http://localhost:${port}`;
+
 async function commandPing() {
     console.log("Pinging server...");
-    const url = `http://localhost:${port}/ping`;
+    const url = `${baseUrl}/ping`;
     const response = await fetch(url);
     const data = await response.text();
     console.log(data);
@@ -64,14 +66,14 @@ async function commandOpenExcel(filePath: string) {
     }
     console.log(`Open Excel file: ${filePath}`);
 
-    const url = `http://localhost:${port}/open-excel-file`;
+    const url = `${baseUrl}/open-excel-file`;
     await postCommand(url, { filePath });
 }
 
 async function commandCloseExcel(id: number) {
     console.log(`Close Excel file with ID: ${id}`);
 
-    const url = `http://localhost:${port}/close-excel-file`;
+    const url = `${baseUrl}/close-excel-file`;
     await postCommand(url, { id });
 }
 

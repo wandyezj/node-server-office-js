@@ -2,16 +2,24 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Server Start",
+            "label": "Watch Compile",
             "command": "npm",
-            "args": ["run", "start"],
+            "args": ["run", "watch-compile"],
             "options": {
-                "cwd": "${workspaceFolder}/src/server"
+                "cwd": "${workspaceFolder}/src"
+            }
+        },
+        {
+            "label": "Watch Server",
+            "command": "npm",
+            "args": ["run", "watch-server"],
+            "options": {
+                "cwd": "${workspaceFolder}/src"
             }
         },
         {
             "label": "Start",
-            "dependsOn": ["Server Start"],
+            "dependsOn": ["Watch Compile", "Watch Server"],
             "group": {
                 "kind": "build",
                 "isDefault": true // Makes this the default build task
