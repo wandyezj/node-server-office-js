@@ -5,6 +5,7 @@ import { getMatcher } from "./getMatcher";
 import { openExcelFile } from "./handlers/openExcelFile";
 import { closeExcelFile } from "./handlers/closeExcelFile";
 import { getTaskpaneHtml } from "./handlers/taskpane";
+import { getServeFile } from "./handlers/getServeFile";
 console.log("Starting server...");
 
 function gracefulShutdown() {
@@ -14,6 +15,16 @@ function gracefulShutdown() {
 
 // Ctrl + C
 process.on("SIGINT", gracefulShutdown);
+
+function getFile(
+    filePath: string,
+    contentType: string,
+): [FunctionRequestMatcher, FunctionRequestHandler] {
+    return [
+        getMatcher({ method: "GET", url: `/${filePath}` }),
+        getServeFile(filePath, contentType),
+    ];
+}
 
 export const registry: [FunctionRequestMatcher, FunctionRequestHandler][] = [
     [
@@ -44,11 +55,11 @@ export const registry: [FunctionRequestMatcher, FunctionRequestHandler][] = [
         getMatcher({ method: "POST", url: "/close-excel-file" }),
         closeExcelFile,
     ],
-    [
-        // Get taskpane.html
-        getMatcher({ method: "GET", url: "/taskpane.html" }),
-        getTaskpaneHtml,
-    ],
+    // Get Files
+    getFile("taskpane.html", "text/html"),
+    getFile("icon-16.png", "image/png"),
+    getFile("icon-32.png", "image/png"),
+    getFile("icon-80.png", "image/png"),
 ];
 
 let requestCount = 0;

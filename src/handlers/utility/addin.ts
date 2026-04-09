@@ -1,8 +1,8 @@
 import AdmZip from "adm-zip";
 import { DOMParser, XMLSerializer, type Element } from "@xmldom/xmldom";
 import { removePrefix } from "./removePrefix";
-import { execSync } from "node:child_process";
 import path from "node:path";
+import { writeManifestToRegistry } from "./writeManifestToRegistry";
 
 const pathContentWebExtension = {
     path: "xl/webextensions/webextension1.xml",
@@ -167,13 +167,6 @@ function updateRootRels(zip: AdmZip): void {
     const serializer = new XMLSerializer();
     const updatedXml = serializer.serializeToString(xml);
     zip.updateFile(relsEntry.entryName, Buffer.from(updatedXml, "utf-8"));
-}
-
-export function writeManifestToRegistry(guid: string, manifestPath: string): void {
-    const keyPath = `HKCU\\Software\\Microsoft\\Office\\16.0\\WEF\\Developer`;
-    execSync(`reg add "${keyPath}" /v "${guid}" /t REG_SZ /d "${manifestPath}" /f`, {
-        stdio: "inherit",
-    });
 }
 
 export function addWebExtension(filePathIn: string, filePathOut: string): void {

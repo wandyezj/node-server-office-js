@@ -4,7 +4,9 @@ import { globalProcesses } from "../globalProcesses";
 import { getRequestBody } from "./utility/getRequestBody";
 import { writeResponseJson } from "./utility/writeResponseJson";
 import path from "node:path";
-import { addWebExtension } from "./utility/addin";
+//import { addWebExtension } from "./utility/addin";
+import { embedAddIn } from "./utility/embedAddin";
+import * as fs from "node:fs";
 
 function getTempFilePath(filePath: string): string {
     const { dir, name, ext } = path.parse(filePath);
@@ -30,12 +32,29 @@ export async function openExcelFile(
     // Create a temp copy of the file with the web extension added.
     const filePathTemp = getTempFilePath(filePath);
     console.log(`Creating temp file with web extension: ${filePathTemp}`);
-    addWebExtension(filePath, filePathTemp);
+    const manifestPath = path.normalize(path.join(__dirname, "manifest.xml"));
+    embedAddIn(filePath, manifestPath, filePathTemp);
+    //addWebExtension(filePath, filePathTemp);
     const openFilePath = filePathTemp;
 
     // Open the modified file in Excel
 
-    const excelPath = String.raw`C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE`;
+    const excelPathBase = String.raw`C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE`;
+    const excelPathX86 = String.raw`C:\Program Files (x86)\Microsoft Office\root\Office16\EXCEL.EXE`;
+    const excelPath = fs.existsSync(excelPathBase)
+        ? excelPathBase
+        : fs.existsSync(excelPathX86)
+        ? excelPathX86
+        : undefined;
+
+    if (!excelPath) {
+        console.log(`Excel executable not found.`);
+        writeResponseJson(response, {
+            message: "Excel executable not found",
+        });
+        return;
+    }
+
     // Launch Excel with the file
     const excel = spawn(excelPath, [openFilePath], { stdio: "ignore" });
     if (excel.pid === undefined) {

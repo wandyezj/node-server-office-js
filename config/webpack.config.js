@@ -46,6 +46,11 @@ module.exports = async (env, options) => {
                         from: path.resolve(__dirname, "..", "addin", "manifest.xml"),
                         to: "manifest.xml",
                     },
+                    {
+                        from: "*.png",
+                        to: "[name][ext]",
+                        context: path.resolve(__dirname, "..", "addin"),
+                    },
                 ],
             }),
             new HtmlWebpackPlugin({
