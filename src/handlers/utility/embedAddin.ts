@@ -73,10 +73,7 @@ export function embedAddIn(excelPath: string, manifestPath: string, outputPath: 
         );
         newRel.setAttribute("Target", "xl/webextensions/taskpanes.xml");
         relsRoot.appendChild(newRel);
-        zip.updateFile(
-            rootRelsPath,
-            Buffer.from(serializer.serializeToString(rootRelsDoc)),
-        );
+        zip.updateFile(rootRelsPath, Buffer.from(serializer.serializeToString(rootRelsDoc)));
     }
 
     // 6. Update [Content_Types].xml

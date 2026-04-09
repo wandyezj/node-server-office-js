@@ -14,7 +14,8 @@
         "compile": "webpack --config ./config/webpack.config.js --mode production",
         "watch-compile": "webpack --config ./config/webpack.config.js --mode development --watch",
         "watch-server": "node --watch ./dist/index.bundle.js",
-        "start": "npm run watch-compile & npm run watch-server"
+        "start": "npm run watch-compile & npm run watch-server",
+        "read-manifest-registry": "ts-node ./scripts/read-manifest-registry.ts"
     },
     "repository": {
         "type": "git",
