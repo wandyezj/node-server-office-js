@@ -1,4 +1,5 @@
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
 
@@ -39,6 +40,14 @@ module.exports = async (env, options) => {
             rules: [{ test: /\.(ts|tsx)$/, loader: "ts-loader" }],
         },
         plugins: [
+            new CopyWebpackPlugin({
+                patterns: [
+                    {
+                        from: path.resolve(__dirname, "..", "addin", "manifest.xml"),
+                        to: "manifest.xml",
+                    },
+                ],
+            }),
             new HtmlWebpackPlugin({
                 filename: "taskpane.html",
                 chunks: ["addin"],
@@ -51,7 +60,16 @@ module.exports = async (env, options) => {
                             return `<script>${source}</script>`;
                         })
                         .join("\n    ");
-                    return `<!DOCTYPE html>\n<html>\n<head>\n    <title>Addin</title>\n    ${scripts}\n</head>\n<body></body>\n</html>`;
+                    return `<!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>Addin</title>
+                            <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/beta/hosted/office.js"></script>
+                                ${scripts}
+                        </head>
+                            <body>
+                            </body>
+                        </html>`;
                 },
             }),
         ],

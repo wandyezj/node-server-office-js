@@ -9,6 +9,10 @@ const defaultFilePath = path
     .normalize(path.join(__dirname, "..", "test", "test.xlsx"))
     .replace(/\\/g, "/");
 
+// npm run ping -- --ping
+// npm run ping -- --open-excel --file-path "C:\file.xlsx"
+// npm run ping -- --close-excel --id 12345
+
 const { values, positionals } = parseArgs({
     args: process.argv.slice(2),
     options: {
