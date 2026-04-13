@@ -4,8 +4,8 @@ import { FunctionRequestHandler, FunctionRequestMatcher, handleRequest } from ".
 import { getMatcher } from "./getMatcher";
 import { openExcelFile } from "./handlers/openExcelFile";
 import { closeExcelFile } from "./handlers/closeExcelFile";
-import { getTaskpaneHtml } from "./handlers/taskpane";
 import { getServeFile } from "./handlers/getServeFile";
+
 console.log("Starting server...");
 
 function gracefulShutdown() {
@@ -64,8 +64,7 @@ export const registry: [FunctionRequestMatcher, FunctionRequestHandler][] = [
 
 let requestCount = 0;
 
-// Server Setup
-const server = http.createServer(async (request, response) => {
+async function handleRequestGeneral(request: http.IncomingMessage, response: http.ServerResponse) {
     const method = request.method;
     const url = request.url;
     //const test = process.env["TEST"];
@@ -80,7 +79,12 @@ const server = http.createServer(async (request, response) => {
         response.write("Internal Server Error");
         response.end();
     }
-});
+}
+
+//
+// Server Setup - http
+//
+const serverHttp = http.createServer(handleRequestGeneral);
 
 //
 // Start Listening on port
@@ -89,4 +93,28 @@ const port = process.env.PORT || config.port;
 
 console.log(`Server is listening on port ${port}`);
 
-server.listen(port);
+serverHttp.listen(port);
+
+//
+// Server Setup - https
+//
+import * as fs from "node:fs";
+import * as https from "https";
+import * as path from "path";
+
+if (config.https) {
+    // SSL/TLS Credentials
+    const certDirectory = path.join(__dirname, "certs");
+    const privateKey = fs.readFileSync(path.join(certDirectory, "key.pem"), "utf8");
+    const certificate = fs.readFileSync(path.join(certDirectory, "cert.pem"), "utf8");
+    const credentials = { key: privateKey, cert: certificate };
+
+    // Create the HTTPS server
+    const serverHttps = https.createServer(credentials, handleRequestGeneral);
+
+    const portHttps = config.portHttps;
+
+    console.log(`HTTPS Server is listening on port ${portHttps}`);
+
+    serverHttps.listen(portHttps);
+}

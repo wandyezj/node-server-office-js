@@ -3,6 +3,63 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
 
+const devCerts = require("office-addin-dev-certs");
+
+const { Compilation, sources } = require("webpack");
+
+class CreateFilesPlugin {
+    /**
+     * @type {() => Promise<[string, string][]>}
+     */
+    createFiles = undefined;
+
+    /**
+     * @type {[string, string][]}
+     */
+    cached = undefined;
+
+    /**
+     * @param {() => Promise<[string, string][]>} createFiles
+     */
+    constructor(createFiles) {
+        this.createFiles = createFiles;
+    }
+
+    apply(compiler) {
+        const pluginName = "EmitFilesPlugin";
+
+        compiler.hooks.thisCompilation.tap(pluginName, (compilation) => {
+            compilation.hooks.processAssets.tapPromise(
+                {
+                    name: pluginName,
+                    stage: Compilation.PROCESS_ASSETS_STAGE_ADDITIONS,
+                },
+                async () => {
+                    try {
+                        // Don't regenerate each time
+                        if (this.cached === undefined) {
+                            this.cached = await this.createFiles();
+                        }
+                        const nameAndContent = this.cached;
+
+                        // Loop through and emit each asset
+                        nameAndContent.forEach(([filename, content]) => {
+                            if (content) {
+                                const outputPath = path.join("certs", filename);
+                                compilation.emitAsset(outputPath, new sources.RawSource(content));
+                            }
+                        });
+                    } catch (error) {
+                        compilation.errors.push(
+                            new Error(`Failed to emit dev certs: ${error.message}`),
+                        );
+                    }
+                },
+            );
+        });
+    }
+}
+
 module.exports = async (env, options) => {
     const isDevelopment = options.mode === "development";
 
@@ -24,6 +81,18 @@ module.exports = async (env, options) => {
             rules: [{ test: /\.(ts|tsx)$/, loader: "ts-loader" }],
         },
         watch: isDevelopment,
+        plugins: [
+            new CreateFilesPlugin(async () => {
+                const { ca, key, cert } = await devCerts.getHttpsServerOptions();
+
+                // Mapping the options keys to desired filenames
+                return [
+                    ["ca.pem", ca],
+                    ["key.pem", key],
+                    ["cert.pem", cert],
+                ];
+            }),
+        ],
     };
 
     const addinConfig = {

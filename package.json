@@ -15,7 +15,10 @@
         "watch-compile": "webpack --config ./config/webpack.config.js --mode development --watch",
         "watch-server": "node --watch ./dist/index.bundle.js",
         "start": "npm run watch-compile & npm run watch-server",
-        "read-manifest-registry": "ts-node ./scripts/read-manifest-registry.ts"
+        "read-manifest-registry": "ts-node ./scripts/read-manifest-registry.ts",
+        "cert": "ts-node ./scripts/certs.ts",
+        "cert-install": "npx office-addin-dev-certs install",
+        "cert-verify": "npx office-addin-dev-certs verify"
     },
     "repository": {
         "type": "git",
@@ -41,7 +44,8 @@
         "ts-node": "^10.9.2",
         "typescript": "^6.0.2",
         "webpack": "^5.104.1",
-        "webpack-cli": "^6.0.1"
+        "webpack-cli": "^6.0.1",
+        "office-addin-dev-certs": "^2.0.7"
     },
     "dependencies": {
         "@xmldom/xmldom": "^0.9.9",
