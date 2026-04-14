@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
-    xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
-    xsi:type="TaskPaneApp">
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+           xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
+           xsi:type="TaskPaneApp">
     <Id>73570000-0000-0000-0000-000000000000</Id>
     <Version>1.0.0.0</Version>
-    <ProviderName>Test</ProviderName>
+    <ProviderName>Sideload</ProviderName>
     <DefaultLocale>en-US</DefaultLocale>
-    <DisplayName DefaultValue="Test" />
-    <Description DefaultValue="Test Sideload" />
-    <SupportUrl DefaultValue="https://www.contoso.com/help" />
+    <DisplayName DefaultValue="Sideload" />
+    <Description DefaultValue="Sideload" />
+    <SupportUrl DefaultValue="http://localhost:8100/help" />
     <AppDomains>
-        <AppDomain>https://www.contoso.com</AppDomain>
         <AppDomain>http://localhost:8100</AppDomain>
     </AppDomains>
     <Hosts>
@@ -23,7 +22,7 @@
     </DefaultSettings>
     <Permissions>ReadWriteDocument</Permissions>
     <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
-        xsi:type="VersionOverridesV1_0">
+                      xsi:type="VersionOverridesV1_0">
         <Hosts>
             <Host xsi:type="Workbook">
                 <DesktopFormFactor>
@@ -32,52 +31,18 @@
                         <Description resid="GetStarted.Description" />
                         <LearnMoreUrl resid="GetStarted.LearnMoreUrl" />
                     </GetStarted>
-                    <ExtensionPoint xsi:type="PrimaryCommandSurface">
-                        <OfficeTab id="TabHome">
-                            <Group id="Test.Group1">
-                                <Label resid="GroupLabel" />
-                                <Control xsi:type="Button" id="Test.OpenPane">
-                                    <Label resid="ButtonLabel" />
-                                    <Supertip>
-                                        <Title resid="ButtonTitle" />
-                                        <Description resid="ButtonDescription" />
-                                    </Supertip>
-                                    <Icon>
-                                        <bt:Image size="16" resid="Icon.16x16" />
-                                        <bt:Image size="32" resid="Icon.32x32" />
-                                        <bt:Image size="80" resid="Icon.80x80" />
-                                    </Icon>
-                                    <Action xsi:type="ShowTaskpane">
-                                        <TaskpaneId>Office.AutoShowTaskpaneWithDocument</TaskpaneId>
-                                        <SourceLocation resid="Taskpane.Url" />
-                                    </Action>
-                                </Control>
-                            </Group>
-                        </OfficeTab>
+                    <ExtensionPoint xsi:type="Workbook">
+                        <TaskpaneId>Office.AutoShowTaskpaneWithDocument</TaskpaneId>
+                        <SourceLocation resid="Taskpane.Url" />
                     </ExtensionPoint>
                 </DesktopFormFactor>
             </Host>
         </Hosts>
         <Resources>
             <bt:Urls>
-                <bt:Url id="Taskpane.Url" DefaultValue="http://localhost:8100/taskpane.html" />
+                <bt:Url id="Taskpane.Url"
+                        DefaultValue="http://localhost:8100/taskpane.html" />
             </bt:Urls>
-            <bt:Images>
-                <bt:Image id="Icon.16x16" DefaultValue="http://localhost:8100/icon-16.png" />
-                <bt:Image id="Icon.32x32" DefaultValue="http://localhost:8100/icon-32.png" />
-                <bt:Image id="Icon.80x80" DefaultValue="http://localhost:8100/icon-80.png" />
-            </bt:Images>
-            <bt:ShortStrings>
-                <bt:String id="GroupLabel" DefaultValue="Test" />
-                <bt:String id="ButtonLabel" DefaultValue="Open Pane" />
-                <bt:String id="ButtonTitle" DefaultValue="Open Pane" />
-                <bt:String id="GetStarted.Title" DefaultValue="Test" />
-            </bt:ShortStrings>
-            <bt:LongStrings>
-                <bt:String id="ButtonDescription" DefaultValue="Opens the task pane." />
-                <bt:String id="GetStarted.Description" DefaultValue="Test add-in." />
-                <bt:String id="GetStarted.LearnMoreUrl" DefaultValue="https://www.contoso.com/help" />
-            </bt:LongStrings>
         </Resources>
     </VersionOverrides>
 </OfficeApp>
