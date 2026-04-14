@@ -63,7 +63,12 @@ class CreateFilesPlugin {
 module.exports = async (env, options) => {
     const isDevelopment = options.mode === "development";
 
+    const outputPath = path.resolve(__dirname, "..", "dist");
+
     const cleanConfig = {
+        output: {
+            path: outputPath,
+        },
         plugins: [new CleanWebpackPlugin()],
     };
 
@@ -74,7 +79,7 @@ module.exports = async (env, options) => {
         entry: { index: "./src/index.ts" },
         output: {
             filename: "[name].bundle.js",
-            path: path.resolve(__dirname, "..", "dist"),
+            path: outputPath,
         },
         resolve: { extensions: [".ts", ".json", ".js"] },
         module: {
@@ -102,7 +107,7 @@ module.exports = async (env, options) => {
         entry: { addin: "./addin/index.ts" },
         output: {
             filename: "[name].bundle.js",
-            path: path.resolve(__dirname, "..", "dist"),
+            path: outputPath,
         },
         resolve: { extensions: [".ts", ".json", ".js"] },
         module: {
@@ -142,6 +147,7 @@ module.exports = async (env, options) => {
                                 ${scripts}
                         </head>
                             <body>
+                            <h1>Sideload</h1>
                             </body>
                         </html>`;
                 },
@@ -150,5 +156,5 @@ module.exports = async (env, options) => {
         watch: isDevelopment,
     };
 
-    return [addinConfig, serverConfig];
+    return [cleanConfig, addinConfig, serverConfig];
 };

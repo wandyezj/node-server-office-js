@@ -25,32 +25,41 @@ export function embedAddIn(excelPath: string, manifestPath: string, outputPath: 
     writeManifestToRegistry(addInId, manifestPath);
 
     // 2. Create xl/webextensions/webextension1.xml
-    const webExtXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    const webExtPath = "xl/webextensions/webextension1.xml";
+    const webExtXml = `
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <we:webextension xmlns:we="http://schemas.microsoft.com/office/webextensions/webextension/2010/11" id="{${addInId}}">
-  <we:reference id="{${addInId}}" version="${version}" store="developer" storeType="Registry"/>
+  <we:reference id="${addInId}" version="${version}" store="developer" storeType="Registry"/>
   <we:alternateReferences/>
   <we:properties>
     <we:property name="Office.AutoShowTaskpaneWithDocument" value="true"/>
   </we:properties>
   <we:bindings/><we:snapshot xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/>
-</we:webextension>`;
-    zip.addFile("xl/webextensions/webextension1.xml", Buffer.from(webExtXml));
+</we:webextension>
+`.trim();
+    zip.addFile(webExtPath, Buffer.from(webExtXml));
 
     // 3. Create xl/webextensions/taskpanes.xml
-    const taskpanesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    const taskpanesPath = "xl/webextensions/taskpanes.xml";
+    const taskpanesXml = `
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <wetp:taskpanes xmlns:wetp="http://schemas.microsoft.com/office/webextensions/taskpanes/2010/11">
-  <wetp:taskpane dockstate="right" visibility="1" width="350" row="1">
+  <wetp:taskpane dockstate="right" visibility="1" width="350" row="0">
     <wetp:webextensionref xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:id="rId1"/>
   </wetp:taskpane>
-</wetp:taskpanes>`;
-    zip.addFile("xl/webextensions/taskpanes.xml", Buffer.from(taskpanesXml));
+</wetp:taskpanes>
+`.trim();
+    zip.addFile(taskpanesPath, Buffer.from(taskpanesXml));
 
     // 4. Create xl/webextensions/_rels/taskpanes.xml.rels
-    const taskpaneRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    const taskpaneRelsPath = "xl/webextensions/_rels/taskpanes.xml.rels";
+    const taskpaneRelsXml = `
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
   <Relationship Id="rId1" Type="http://schemas.microsoft.com/office/2011/relationships/webextension" Target="webextension1.xml"/>
-</Relationships>`;
-    zip.addFile("xl/webextensions/_rels/taskpanes.xml.rels", Buffer.from(taskpaneRelsXml));
+</Relationships>
+`.trim();
+    zip.addFile(taskpaneRelsPath, Buffer.from(taskpaneRelsXml));
 
     // 5. Update _rels/.rels (package-level rels)
     const rootRelsPath = "_rels/.rels";
@@ -65,7 +74,19 @@ export function embedAddIn(excelPath: string, manifestPath: string, outputPath: 
 
     if (!hasRel) {
         const newRel = rootRelsDoc.createElement("Relationship");
-        const newId = `rIdWebExt${Math.floor(Math.random() * 10000)}`; // Simple unique ID
+
+        // Find the next available rId by reading through existing relationships
+        const rIds = existingRels
+            .map((r) => r.getAttribute("Id"))
+            .filter((id): id is string => id !== null)
+            .map((id) => {
+                const match = id.match(/rId(\d+)/);
+                return match ? parseInt(match[1], 10) : 0;
+            });
+
+        const maxRId = rIds.length > 0 ? Math.max(...rIds) : 0;
+        const newId = `rId${maxRId + 1}`;
+
         newRel.setAttribute("Id", newId);
         newRel.setAttribute(
             "Type",

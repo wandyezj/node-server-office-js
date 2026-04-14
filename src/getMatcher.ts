@@ -19,10 +19,11 @@ export function getMatcher(match: {
     }
 
     function matcher(request: http.IncomingMessage): boolean {
-        // Match then request
+        // the path is the part of the URL after the domain and port, without query parameters or hash
+        const { pathname } = new URL(request.url ?? "", `http://localhost`);
         return (
             matches(match.method, request.method) &&
-            matches(match.url, request.url) &&
+            matches(match.url, pathname) &&
             matches(match.origin, request.headers.origin)
         );
     }
