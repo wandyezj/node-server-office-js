@@ -12,6 +12,7 @@ const defaultFilePath = path
 // npm run ping -- --ping
 // npm run ping -- --open-excel --file-path "C:\file.xlsx"
 // npm run ping -- --close-excel --id 12345
+// npm run ping -- --ping-excel
 
 const { values, positionals } = parseArgs({
     args: process.argv.slice(2),
@@ -28,6 +29,9 @@ const { values, positionals } = parseArgs({
             default: defaultFilePath,
         },
         ["close-excel"]: {
+            type: "boolean",
+        },
+        ["ping-excel"]: {
             type: "boolean",
         },
         ["id"]: {
@@ -77,6 +81,12 @@ async function commandCloseExcel(id: number) {
     await postCommand(url, { id });
 }
 
+async function commandPingExcel() {
+    console.log("Pinging Excel file...");
+    const url = `${baseUrl}/ping-excel`;
+    await postCommand(url, {});
+}
+
 async function main() {
     if (values.ping) {
         await commandPing();
@@ -85,6 +95,9 @@ async function main() {
     if (values["open-excel"]) {
         const filePath = values["file-path"];
         await commandOpenExcel(filePath);
+    }
+    if (values["ping-excel"]) {
+        await commandPingExcel();
     }
 
     if (values["close-excel"]) {

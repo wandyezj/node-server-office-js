@@ -2,6 +2,7 @@ import * as fs from "node:fs";
 import AdmZip from "adm-zip";
 import { DOMParser, XMLSerializer } from "@xmldom/xmldom";
 import { writeManifestToRegistry } from "./writeManifestToRegistry";
+import { globalLog } from "../../globalLog";
 
 /**
  * Sideloads an Office.js Add-in into an Excel file.
@@ -129,7 +130,7 @@ export function embedAddIn(excelPath: string, manifestPath: string, outputPath: 
 
     // 7. Write the final file
     zip.writeZip(outputPath);
-    console.log(`Success! File saved to: ${outputPath}`);
+    globalLog.log(`Success! File saved to: ${outputPath}`);
 }
 
 // Example usage:

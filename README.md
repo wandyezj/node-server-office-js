@@ -6,13 +6,13 @@ Node server to execute office.js on an Office Document.
 
 Install dependencies:
 
-```bash
+```zsh
 npm install
 ```
 
 Build TypeScript:
 
-```bash
+```zsh
 npm run build
 ```
 

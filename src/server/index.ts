@@ -1,10 +1,6 @@
 import * as http from "http";
 import config from "./config.json";
-import { FunctionRequestHandler, FunctionRequestMatcher, handleRequest } from "./handleRequest";
-import { getMatcher } from "./getMatcher";
-import { openExcelFile } from "./handlers/openExcelFile";
-import { closeExcelFile } from "./handlers/closeExcelFile";
-import { getServeFile } from "./handlers/getServeFile";
+import { handleRequest } from "./handleRequest";
 
 console.log("Starting server...");
 
@@ -16,52 +12,6 @@ function gracefulShutdown() {
 // Ctrl + C
 process.on("SIGINT", gracefulShutdown);
 
-function getFile(
-    filePath: string,
-    contentType: string,
-): [FunctionRequestMatcher, FunctionRequestHandler] {
-    return [
-        getMatcher({ method: "GET", url: `/${filePath}` }),
-        getServeFile(filePath, contentType),
-    ];
-}
-
-export const registry: [FunctionRequestMatcher, FunctionRequestHandler][] = [
-    [
-        // Connectivity check
-        getMatcher({ method: "GET", url: "/" }),
-        async (request, response) => {
-            response.writeHead(200, { "Content-Type": "text/plain" });
-            response.write("");
-            response.end();
-        },
-    ],
-    [
-        // Ping
-        getMatcher({ method: "GET", url: "/ping" }),
-        async (request, response) => {
-            response.writeHead(200, { "Content-Type": "text/plain" });
-            response.write("pong");
-            response.end();
-        },
-    ],
-    [
-        // Open Excel file
-        getMatcher({ method: "POST", url: "/open-excel-file" }),
-        openExcelFile,
-    ],
-    [
-        // Close Excel file
-        getMatcher({ method: "POST", url: "/close-excel-file" }),
-        closeExcelFile,
-    ],
-    // Get Files
-    getFile("taskpane.html", "text/html"),
-    getFile("icon-16.png", "image/png"),
-    getFile("icon-32.png", "image/png"),
-    getFile("icon-80.png", "image/png"),
-];
-
 let requestCount = 0;
 
 async function handleRequestGeneral(request: http.IncomingMessage, response: http.ServerResponse) {
@@ -70,7 +20,8 @@ async function handleRequestGeneral(request: http.IncomingMessage, response: htt
     //const test = process.env["TEST"];
     const origin = request.headers.origin;
 
-    console.log(`Received request [${requestCount++}]: from ${origin} ${method} ${url}`);
+    globalLog.log(`Request received: [${requestCount++}]: from ${origin} ${method} ${url}`);
+    globalLog.indent();
     try {
         await handleRequest(registry, request, response);
     } catch (error) {
@@ -79,6 +30,7 @@ async function handleRequestGeneral(request: http.IncomingMessage, response: htt
         response.write("Internal Server Error");
         response.end();
     }
+    globalLog.outdent();
 }
 
 //
@@ -120,15 +72,29 @@ if (config.https.enabled) {
 }
 
 import { WebSocketServer } from "ws";
+import { registry } from "./registry";
+import { globalWebsocket } from "./globalWebsocket";
+import { globalLog } from "./globalLog";
 if (config.socket.enabled) {
     const port = config.socket.port;
-    const server = new WebSocketServer({ port });
+    const serverWebsocket = new WebSocketServer({ port });
 
-    server.on("connection", function connection(ws) {
+    serverWebsocket.on("connection", function connection(ws) {
         ws.on("error", console.error);
 
-        ws.on("message", function message(data) {
-            console.log(`received: ${data}`);
+        ws.on("message", async function message(data) {
+            console.log(`Websocket received: ${data}`);
+            try {
+                await globalWebsocket.handleMessage(`${data}`);
+            } catch (error) {
+                console.error("Error handling websocket message:", error);
+            }
+        });
+
+        globalWebsocket.setSend((data: string) => {
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(data);
+            }
         });
 
         ws.send("something");

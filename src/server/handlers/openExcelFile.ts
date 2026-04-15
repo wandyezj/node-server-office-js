@@ -7,6 +7,7 @@ import path from "node:path";
 //import { addWebExtension } from "./utility/addin";
 import { embedAddIn } from "./utility/embedAddin";
 import * as fs from "node:fs";
+import { globalLog } from "../globalLog";
 
 function getTempFilePath(filePath: string): string {
     const { dir, name, ext } = path.parse(filePath);
@@ -27,14 +28,14 @@ export async function openExcelFile(
     const data = JSON.parse(body) as { filePath: string }; // e.g. { filePath: "C:\\file.xlsx" }
     const { filePath } = data;
 
-    console.log(`Received request to open Excel file: ${filePath}`);
+    globalLog.log(`Received request to open Excel file: ${filePath}`);
 
     // Create a temp copy of the file with the web extension added.
     const filePathTemp = getTempFilePath(filePath);
-    console.log(`Creating temp file with web extension: ${filePathTemp}`);
+    globalLog.log(`Creating temp file with web extension: ${filePathTemp}`);
 
     const manifestPath = path.normalize(path.join(__dirname, "manifest.xml"));
-    console.log(`manifestPath: ${manifestPath}`);
+    globalLog.log(`manifestPath: ${manifestPath}`);
     embedAddIn(filePath, manifestPath, filePathTemp);
     //addWebExtension(filePath, filePathTemp);
     const openFilePath = filePathTemp;
@@ -50,7 +51,7 @@ export async function openExcelFile(
         : undefined;
 
     if (!excelPath) {
-        console.log(`Excel executable not found.`);
+        globalLog.log(`Excel executable not found.`);
         writeResponseJson(response, {
             message: "Excel executable not found",
         });
@@ -60,9 +61,9 @@ export async function openExcelFile(
     // Launch Excel with the file
     const excel = spawn(excelPath, [openFilePath], { stdio: "ignore" });
     if (excel.pid === undefined) {
-        console.log(`Failed to launch Excel`);
+        globalLog.log(`Failed to launch Excel`);
     } else {
-        console.log(`Launched Excel with PID: ${excel.pid}`);
+        globalLog.log(`Launched Excel with PID: ${excel.pid}`);
     }
     const id = globalProcesses.add(excel);
 

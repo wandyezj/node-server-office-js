@@ -14,7 +14,7 @@ export async function handleRequest(
 ) {
     for (const [matcher, handler] of registry) {
         if (matcher(request)) {
-            console.log(`Matched request: ${request.method} ${request.url}`);
+            console.log(`Request Matched: ${request.method} ${request.url}`);
             await handler(request, response);
             return; // Stop processing after the first match
         }

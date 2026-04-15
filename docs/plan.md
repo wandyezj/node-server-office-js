@@ -33,3 +33,8 @@ See example: [Office.File.getSliceAsync](https://learn.microsoft.com/en-us/javas
 ## Reference
 
 [GitHub Office-Addin-Scripts](https://github.com/OfficeDev/Office-Addin-Scripts)
+
+
+## Feature Ideas
+
+- Server Trace Log - start server logging to a file on disc to help debug errors

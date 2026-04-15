@@ -83,11 +83,11 @@ module.exports = async (env, options) => {
         },
         resolve: {
             extensions: [".ts", ".json", ".js"],
-            alias: {
-                // For ws
-                bufferutil: false,
-                "utf-8-validate": false,
-            },
+        },
+        externals: {
+            // For ws
+            bufferutil: "commonjs bufferutil",
+            "utf-8-validate": "commonjs utf-8-validate",
         },
         module: {
             rules: [{ test: /\.(ts|tsx)$/, loader: "ts-loader" }],
