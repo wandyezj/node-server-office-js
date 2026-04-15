@@ -17,9 +17,14 @@ function startWebsocket() {
     // 3. Listen for messages
     socket.addEventListener("message", async (event) => {
         const { data } = event;
-        console.log("Message from server: ", data);
+        console.log(`Receive: ${data}`);
+
         const result = await handleProtocolMessage(data);
-        socket.send(JSON.stringify(result));
+
+        const dataBack = JSON.stringify(result);
+        console.log(`Send: ${dataBack}`);
+
+        socket.send(dataBack);
     });
 
     // 4. Handle errors

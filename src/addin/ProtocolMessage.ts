@@ -110,7 +110,11 @@ export interface ProtocolMessageEvalResult {
     sequence: number;
     message: string;
     data: {
-        error?: string;
+        error?: any;
+        /**
+         * Result of the evaluated code
+         */
+        result?: any;
         /**
          * Redirected console.log messages
          */

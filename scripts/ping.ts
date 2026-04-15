@@ -1,18 +1,30 @@
+// Test script for pinging the server and interacting with Excel files
+//
+// Example usage:
+// npm run ping -- --ping
+// npm run ping -- --open-excel --file-path "C:\file.xlsx"
+// npm run ping -- --close-excel --id 12345
+// npm run ping -- --addin-ping
+// npm run ping -- --addin-eval --code-file "C:\file.js"
+
 import { parseArgs } from "node:util";
 import path from "node:path";
 
 import config from "../src/server/config.json";
 
+import { readFileSync } from "node:fs";
+
 const port = config.http.port;
 
+const rootDirectory = path.join(__dirname, "..");
+
 const defaultFilePath = path
-    .normalize(path.join(__dirname, "..", "test", "test.xlsx"))
+    .normalize(path.join(rootDirectory, "test", "test.xlsx"))
     .replace(/\\/g, "/");
 
-// npm run ping -- --ping
-// npm run ping -- --open-excel --file-path "C:\file.xlsx"
-// npm run ping -- --close-excel --id 12345
-// npm run ping -- --ping-excel
+const defaultCodeFilePath = path
+    .normalize(path.join(rootDirectory, "test", "data", "hello-world-excel.js"))
+    .replace(/\\/g, "/");
 
 const { values, positionals } = parseArgs({
     args: process.argv.slice(2),
@@ -31,8 +43,15 @@ const { values, positionals } = parseArgs({
         ["close-excel"]: {
             type: "boolean",
         },
-        ["ping-excel"]: {
+        ["addin-ping"]: {
             type: "boolean",
+        },
+        ["addin-eval"]: {
+            type: "boolean",
+        },
+        ["code-file"]: {
+            type: "string",
+            default: defaultCodeFilePath,
         },
         ["id"]: {
             type: "string",
@@ -81,25 +100,37 @@ async function commandCloseExcel(id: number) {
     await postCommand(url, { id });
 }
 
-async function commandPingExcel() {
+async function commandAddinPing() {
     console.log("Pinging Excel file...");
-    const url = `${baseUrl}/ping-excel`;
+    const url = `${baseUrl}/addin-ping`;
     await postCommand(url, {});
 }
 
+async function commandAddinEval(codeFile: string) {
+    if (!codeFile) {
+        console.error("Please provide code to evaluate using --code-file");
+        return;
+    }
+    console.log(`Eval code in Excel add-in from file: ${codeFile}`);
+    const code = readFileSync(codeFile, "utf-8");
+
+    const url = `${baseUrl}/addin-eval`;
+    await postCommand(url, { code });
+}
+
 async function main() {
+    // --ping
     if (values.ping) {
         await commandPing();
     }
 
+    // --open-excel --file-path "C:\file.xlsx"
     if (values["open-excel"]) {
         const filePath = values["file-path"];
         await commandOpenExcel(filePath);
     }
-    if (values["ping-excel"]) {
-        await commandPingExcel();
-    }
 
+    // --close-excel --id 12345
     if (values["close-excel"]) {
         const id = values["id"];
         console.log("Closing Excel file with ID:", id);
@@ -114,6 +145,21 @@ async function main() {
         }
 
         await commandCloseExcel(numericId);
+    }
+
+    // --addin-ping
+    if (values["addin-ping"]) {
+        await commandAddinPing();
+    }
+
+    // --addin-eval --code-file "C:\file.js"
+    if (values["addin-eval"]) {
+        const codeFile = values["code-file"];
+        if (codeFile === undefined) {
+            console.error("Please provide the code file to evaluate using --code-file");
+            return;
+        }
+        await commandAddinEval(codeFile);
     }
 }
 

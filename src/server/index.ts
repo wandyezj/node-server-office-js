@@ -20,7 +20,7 @@ async function handleRequestGeneral(request: http.IncomingMessage, response: htt
     //const test = process.env["TEST"];
     const origin = request.headers.origin;
 
-    globalLog.log(`Request received: [${requestCount++}]: from ${origin} ${method} ${url}`);
+    globalLog.log(`Request Received: [${requestCount++}]: from ${origin} ${method} ${url}`);
     globalLog.indent();
     try {
         await handleRequest(registry, request, response);

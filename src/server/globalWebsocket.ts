@@ -2,6 +2,8 @@ import {
     ProtocolMessage,
     ProtocolMessageClientResult,
     ProtocolMessageErrorResult,
+    ProtocolMessageEval,
+    ProtocolMessageEvalResult,
     ProtocolMessageParameters,
     ProtocolMessagePing,
     ProtocolMessageServerSend,
@@ -81,6 +83,19 @@ class WebsocketManager {
         const message: ProtocolMessageParameters<ProtocolMessagePing> = {
             type: ProtocolMessageType.Ping,
             message: "ping",
+        };
+
+        const result = await this.send(message);
+        return result;
+    }
+
+    async sendEval(code: string): Promise<ProtocolMessageParameters<ProtocolMessageEvalResult>> {
+        const message: ProtocolMessageParameters<ProtocolMessageEval> = {
+            type: ProtocolMessageType.Eval,
+            message: "eval code",
+            data: {
+                code,
+            },
         };
 
         const result = await this.send(message);

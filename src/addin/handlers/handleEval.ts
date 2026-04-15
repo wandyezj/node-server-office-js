@@ -8,7 +8,9 @@ import {
 /**
  * Eval and capture any error or console.log
  */
-function evalCode(code: string): { error: string | undefined; console: string[] } {
+async function evalCode(
+    code: string,
+): Promise<{ error: string | undefined; result: any; console: string[] }> {
     const consoleMessages: string[] = [];
 
     const originalConsoleLog = console.log;
@@ -18,16 +20,16 @@ function evalCode(code: string): { error: string | undefined; console: string[] 
     };
 
     let error: string | undefined;
-
+    let result: any;
     try {
-        eval.call(globalThis, code);
+        result = await eval.call(globalThis, code);
     } catch (err) {
         error = (err as Error).message;
     }
 
     console.log = originalConsoleLog;
 
-    return { error, console: consoleMessages };
+    return { error, result, console: consoleMessages };
 }
 
 export async function handleEval(
@@ -40,13 +42,14 @@ export async function handleEval(
         throw new Error("Invalid code");
     }
 
-    const { error, console: consoleMessages } = evalCode(code);
+    const { error, result, console: consoleMessages } = await evalCode(code);
 
     const response: ProtocolMessageParameters<ProtocolMessageEvalResult> = {
         type: ProtocolMessageType.EvalResult,
         message: "Eval result",
         data: {
             error,
+            result,
             console: consoleMessages,
         },
     };

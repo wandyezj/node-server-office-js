@@ -7,7 +7,7 @@ import { writeResponseJson } from "./utility/writeResponseJson";
  * @param request
  * @param response
  */
-export async function pingExcel(
+export async function addinPing(
     request: http.IncomingMessage,
     response: http.ServerResponse,
 ): Promise<void> {

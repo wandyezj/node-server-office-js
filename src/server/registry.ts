@@ -1,9 +1,10 @@
 import { getMatcher } from "./getMatcher";
 import { FunctionRequestMatcher, FunctionRequestHandler } from "./handleRequest";
 import { closeExcelFile } from "./handlers/closeExcelFile";
+import { addinEval } from "./handlers/addinEval";
 import { getServeFile } from "./handlers/getServeFile";
 import { openExcelFile } from "./handlers/openExcelFile";
-import { pingExcel } from "./handlers/pingExcel";
+import { addinPing } from "./handlers/addinPing";
 
 export function getFile(
     filePath: string,
@@ -49,5 +50,6 @@ export const registry: [FunctionRequestMatcher, FunctionRequestHandler][] = [
     getFile("icon-16.png", "image/png"),
     getFile("icon-32.png", "image/png"),
     getFile("icon-80.png", "image/png"),
-    [getMatcher({ method: "POST", url: "/ping-excel" }), pingExcel],
+    [getMatcher({ method: "POST", url: "/addin-ping" }), addinPing],
+    [getMatcher({ method: "POST", url: "/addin-eval" }), addinEval],
 ];
