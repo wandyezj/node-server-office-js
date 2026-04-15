@@ -1,5 +1,13 @@
 {
-    "port": 8100,
-    "https": true,
-    "portHttps": 8101
+    "http": {
+        "port": 8100
+    },
+    "https": {
+        "enabled": true,
+        "port": 8101
+    },
+    "socket": {
+        "enabled": true,
+        "port": 8102
+    }
 }

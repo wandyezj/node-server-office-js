@@ -32,7 +32,9 @@ export async function openExcelFile(
     // Create a temp copy of the file with the web extension added.
     const filePathTemp = getTempFilePath(filePath);
     console.log(`Creating temp file with web extension: ${filePathTemp}`);
+
     const manifestPath = path.normalize(path.join(__dirname, "manifest.xml"));
+    console.log(`manifestPath: ${manifestPath}`);
     embedAddIn(filePath, manifestPath, filePathTemp);
     //addWebExtension(filePath, filePathTemp);
     const openFilePath = filePathTemp;

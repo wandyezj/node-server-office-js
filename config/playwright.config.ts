@@ -2,7 +2,7 @@ import { defineConfig } from "@playwright/test";
 
 import config from "../src/config.json";
 
-const port = config.port;
+const port = config.http.port;
 
 export default defineConfig({
     testDir: "../test",

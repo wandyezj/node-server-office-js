@@ -3,7 +3,7 @@ import path from "node:path";
 
 import config from "../src/config.json";
 
-const port = config.port;
+const port = config.http.port;
 
 const defaultFilePath = path
     .normalize(path.join(__dirname, "..", "test", "test.xlsx"))

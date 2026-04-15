@@ -89,9 +89,9 @@ const serverHttp = http.createServer(handleRequestGeneral);
 //
 // Start Listening on port
 //
-const port = process.env.PORT || config.port;
+const port = process.env.PORT || config.http.port;
 
-console.log(`Server is listening on port ${port}`);
+console.log(`Server [HTTP] is listening on port ${port}`);
 
 serverHttp.listen(port);
 
@@ -102,7 +102,7 @@ import * as fs from "node:fs";
 import * as https from "https";
 import * as path from "path";
 
-if (config.https) {
+if (config.https.enabled) {
     // SSL/TLS Credentials
     const certDirectory = path.join(__dirname, "certs");
     const privateKey = fs.readFileSync(path.join(certDirectory, "key.pem"), "utf8");
@@ -112,9 +112,27 @@ if (config.https) {
     // Create the HTTPS server
     const serverHttps = https.createServer(credentials, handleRequestGeneral);
 
-    const portHttps = config.portHttps;
+    const portHttps = config.https.port;
 
-    console.log(`HTTPS Server is listening on port ${portHttps}`);
+    console.log(`Server [HTTPS] is listening on port ${portHttps}`);
 
     serverHttps.listen(portHttps);
+}
+
+import { WebSocketServer } from "ws";
+if (config.socket.enabled) {
+    const port = config.socket.port;
+    const server = new WebSocketServer({ port });
+
+    server.on("connection", function connection(ws) {
+        ws.on("error", console.error);
+
+        ws.on("message", function message(data) {
+            console.log(`received: ${data}`);
+        });
+
+        ws.send("something");
+    });
+
+    console.log(`Server [Socket] running at http://localhost:${port}`);
 }
