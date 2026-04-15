@@ -1,5 +1,5 @@
 console.log("Client");
-import config from "./../src/config.json";
+import config from "./../server/config.json";
 
 function startWebsocket() {
     // 1. Establish the connection

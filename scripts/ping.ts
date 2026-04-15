@@ -1,7 +1,7 @@
 import { parseArgs } from "node:util";
 import path from "node:path";
 
-import config from "../src/config.json";
+import config from "../src/server/config.json";
 
 const port = config.http.port;
 

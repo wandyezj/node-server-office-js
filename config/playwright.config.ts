@@ -1,6 +1,6 @@
 import { defineConfig } from "@playwright/test";
 
-import config from "../src/config.json";
+import config from "../src/server/config.json";
 
 const port = config.http.port;
 

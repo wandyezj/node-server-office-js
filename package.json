@@ -16,7 +16,6 @@
         "watch-server": "node --watch ./dist/index.bundle.js",
         "start": "npm run watch-compile & npm run watch-server",
         "read-manifest-registry": "ts-node ./scripts/read-manifest-registry.ts",
-        "cert": "ts-node ./scripts/certs.ts",
         "cert-install": "npx office-addin-dev-certs install",
         "cert-verify": "npx office-addin-dev-certs verify"
     },

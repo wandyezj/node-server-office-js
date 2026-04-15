@@ -76,12 +76,19 @@ module.exports = async (env, options) => {
         target: "node",
         devtool: isDevelopment ? "inline-source-map" : undefined,
         performance: { hints: false },
-        entry: { index: "./src/index.ts" },
+        entry: { index: "./src/server/index.ts" },
         output: {
             filename: "[name].bundle.js",
             path: outputPath,
         },
-        resolve: { extensions: [".ts", ".json", ".js"] },
+        resolve: {
+            extensions: [".ts", ".json", ".js"],
+            alias: {
+                // For ws
+                bufferutil: false,
+                "utf-8-validate": false,
+            },
+        },
         module: {
             rules: [{ test: /\.(ts|tsx)$/, loader: "ts-loader" }],
         },
@@ -104,7 +111,7 @@ module.exports = async (env, options) => {
         target: "web",
         devtool: isDevelopment ? "inline-source-map" : undefined,
         performance: { hints: false },
-        entry: { addin: "./addin/index.ts" },
+        entry: { addin: "./src/addin/index.ts" },
         output: {
             filename: "[name].bundle.js",
             path: outputPath,
@@ -117,13 +124,13 @@ module.exports = async (env, options) => {
             new CopyWebpackPlugin({
                 patterns: [
                     {
-                        from: path.resolve(__dirname, "..", "addin", "manifest.xml"),
+                        from: path.resolve(__dirname, "..", "src", "addin", "manifest.xml"),
                         to: "manifest.xml",
                     },
                     {
                         from: "*.png",
                         to: "[name][ext]",
-                        context: path.resolve(__dirname, "..", "addin"),
+                        context: path.resolve(__dirname, "..", "src", "addin"),
                     },
                 ],
             }),
