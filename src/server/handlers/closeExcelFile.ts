@@ -1,12 +1,19 @@
 import * as http from "http";
 import { getRequestBody } from "./utility/getRequestBody";
-import { globalProcesses } from "../globalProcesses";
+import { globalProcesses, ProcessMetadata } from "../globalProcesses";
 import { writeResponseJson } from "./utility/writeResponseJson";
+import { writeResponseJsonError } from "./utility/writeResponseJsonError";
+import { getAndSaveExcelContents } from "./utility/getAndSaveExcelContents";
 
 /**
  * Close the specific Excel file
  * @param request
  * @param response
+ *
+ * Closes
+ * id - the process ID of the Excel instance to close
+ * filePath - the source file path of the Excel file to close
+ * overwrite - whether to overwrite the existing file with the modified version.
  */
 export async function closeExcelFile(
     request: http.IncomingMessage,
@@ -14,15 +21,38 @@ export async function closeExcelFile(
 ): Promise<void> {
     // Post request - collect the body stream
     const body = await getRequestBody(request);
-    const data = JSON.parse(body) as { id: number }; // e.g. { id: 12345 }
-    const { id } = data;
+    const data = JSON.parse(body) as { id?: number; filePath?: string; filePathSave?: string }; // e.g. { id: 12345 }
+    const { id, filePath, filePathSave } = data;
 
-    globalProcesses.get(id)?.kill();
-    globalProcesses.remove(id);
+    let targetPid: number | undefined = undefined;
+    let targetMetadata: ProcessMetadata | undefined = undefined;
 
-    // Find the specific excel file
+    if (filePath) {
+        const allPidMetadata = globalProcesses.getAllPidMetadata();
+        for (const [pid, metadata] of allPidMetadata) {
+            if (metadata.tag === "excel" && metadata.filePathSource === filePath) {
+                targetPid = pid;
+                targetMetadata = metadata;
+            }
+        }
+    } else if (id) {
+        targetPid = id;
+        targetMetadata = globalProcesses.getMetadataByPid(id);
+    }
 
-    // Close Excel with the file
+    if (filePathSave) {
+        await getAndSaveExcelContents(filePathSave);
+    }
 
-    writeResponseJson(response, { message: "Excel file closed successfully", id });
+    // Close excel file(s)
+    if (id === undefined) {
+        globalProcesses.endAll();
+        writeResponseJson(response, {
+            message: "No ID provided, all Excel files closed successfully",
+        });
+        return;
+    } else {
+        await globalProcesses.endByPidAndWait(id);
+        writeResponseJson(response, { message: "Excel file closed successfully", id });
+    }
 }

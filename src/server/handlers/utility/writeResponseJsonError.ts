@@ -3,7 +3,7 @@ import * as http from "http";
 export function writeResponseJsonError(
     response: http.ServerResponse,
     error: string,
-    data: Record<string, unknown>,
+    data: Record<string, unknown> = {},
 ): void {
     const o = { error, data };
 

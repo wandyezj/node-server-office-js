@@ -59,13 +59,17 @@ export async function openExcelFile(
     }
 
     // Launch Excel with the file
-    const excel = spawn(excelPath, [openFilePath], { stdio: "ignore" });
-    if (excel.pid === undefined) {
+    const id = globalProcesses.spawn(excelPath, [openFilePath], {
+        tag: "excel",
+        filePathSource: filePath,
+        filePathOpen: openFilePath,
+    });
+
+    if (id === undefined) {
         globalLog.log(`Failed to launch Excel`);
     } else {
-        globalLog.log(`Launched Excel with PID: ${excel.pid}`);
+        globalLog.log(`Launched Excel with PID: ${id}`);
     }
-    const id = globalProcesses.add(excel);
 
     writeResponseJson(response, {
         message: "Excel file opened successfully",

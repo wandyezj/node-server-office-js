@@ -5,6 +5,7 @@ import { addinEval } from "./handlers/addinEval";
 import { getServeFile } from "./handlers/getServeFile";
 import { openExcelFile } from "./handlers/openExcelFile";
 import { addinPing } from "./handlers/addinPing";
+import { saveExcelFile } from "./handlers/saveExcelFile";
 
 export function getFile(
     filePath: string,
@@ -35,21 +36,18 @@ export const registry: [FunctionRequestMatcher, FunctionRequestHandler][] = [
             response.end();
         },
     ],
-    [
-        // Open Excel file
-        getMatcher({ method: "POST", url: "/open-excel-file" }),
-        openExcelFile,
-    ],
-    [
-        // Close Excel file
-        getMatcher({ method: "POST", url: "/close-excel-file" }),
-        closeExcelFile,
-    ],
-    // Get Files
+    // Excel file operations (some use websockets)
+    [getMatcher({ method: "POST", url: "/open-excel-file" }), openExcelFile],
+    [getMatcher({ method: "POST", url: "/close-excel-file" }), closeExcelFile],
+    [getMatcher({ method: "POST", url: "/save-excel-file" }), saveExcelFile],
+
+    // Addin Files
     getFile("taskpane.html", "text/html"),
     getFile("icon-16.png", "image/png"),
     getFile("icon-32.png", "image/png"),
     getFile("icon-80.png", "image/png"),
+
+    // Addin Websocket Operations
     [getMatcher({ method: "POST", url: "/addin-ping" }), addinPing],
     [getMatcher({ method: "POST", url: "/addin-eval" }), addinEval],
 ];

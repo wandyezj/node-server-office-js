@@ -53,6 +53,15 @@ test("Addin - Eval", async ({ request }) => {
     expect(body).toContain("result");
 });
 
+test("Save Excel File", async ({ request }) => {
+    const response = await request.post("/save-excel-file", {
+        data: {
+            filePath: defaultFileOutPath,
+        },
+    });
+    expect(response.ok()).toBeTruthy();
+});
+
 test("Close Excel File", async ({ request }) => {
     const response = await request.post("/close-excel-file", {
         data: {
