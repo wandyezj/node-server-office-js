@@ -45,14 +45,14 @@ export async function closeExcelFile(
     }
 
     // Close excel file(s)
-    if (id === undefined) {
-        globalProcesses.endAll();
+    if (targetPid === undefined) {
+        await globalProcesses.endAllAsync();
         writeResponseJson(response, {
             message: "No ID provided, all Excel files closed successfully",
         });
         return;
     } else {
-        await globalProcesses.endByPidAndWait(id);
+        await globalProcesses.endByPidAndWait(targetPid);
         writeResponseJson(response, { message: "Excel file closed successfully", id });
     }
 }

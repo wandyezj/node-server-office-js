@@ -93,11 +93,18 @@ async function commandOpenExcel(filePath: string) {
     await postCommand(url, { filePath });
 }
 
-async function commandCloseExcel(id: number) {
+async function commandCloseExcelById(id: number) {
     console.log(`Close Excel file with ID: ${id}`);
 
     const url = `${baseUrl}/close-excel-file`;
     await postCommand(url, { id });
+}
+
+async function commandCloseExcelByFilePath(filePath: string) {
+    console.log(`Close Excel file with file path: ${filePath}`);
+
+    const url = `${baseUrl}/close-excel-file`;
+    await postCommand(url, { filePath });
 }
 
 async function commandAddinPing() {
@@ -133,18 +140,26 @@ async function main() {
     // --close-excel --id 12345
     if (values["close-excel"]) {
         const id = values["id"];
-        console.log("Closing Excel file with ID:", id);
-        if (id === undefined) {
-            console.error("Please provide the process ID to close using --id");
-            return;
-        }
-        const numericId = Number.parseInt(id);
-        if (isNaN(numericId)) {
-            console.error("Invalid ID provided. Please provide a valid number for --id");
-            return;
-        }
+        const filePath = values["file-path"];
 
-        await commandCloseExcel(numericId);
+        if (id) {
+            console.log(`Closing Excel file with ID: ${id}`);
+            const numericId = Number.parseInt(id);
+            if (isNaN(numericId)) {
+                console.error("Invalid ID provided. Please provide a valid number for --id");
+                return;
+            }
+
+            await commandCloseExcelById(numericId);
+        } else if (filePath) {
+            console.log(`Closing Excel file with file path: ${filePath}`);
+            await commandCloseExcelByFilePath(filePath);
+        } else {
+            console.error(
+                "Please provide the process ID to close using --id or the file path using --file-path",
+            );
+            return;
+        }
     }
 
     // --addin-ping

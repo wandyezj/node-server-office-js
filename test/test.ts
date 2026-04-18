@@ -65,7 +65,8 @@ test("Save Excel File", async ({ request }) => {
 test("Close Excel File", async ({ request }) => {
     const response = await request.post("/close-excel-file", {
         data: {
-            filePath: defaultFileOutPath,
+            filePath: defaultFilePath,
+            filePathSave: defaultFileOutPath,
         },
     });
     expect(response.ok()).toBeTruthy();
