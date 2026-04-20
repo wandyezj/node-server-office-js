@@ -1,21 +1,34 @@
 import * as http from "node:http";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import { globalWebsocket } from "../globalWebsocket";
 import { writeResponseJson } from "./utility/writeResponseJson";
 import { getRequestBody } from "./utility/getRequestBody";
 import {
     MicroCommand,
+    MicroCommandAddinEval,
+    MicroCommandAddinEvalResult,
     MicroCommandAddinPing,
     MicroCommandAddinPingResult,
     MicroCommandBody,
     MicroCommandBodyResult,
+    MicroCommandCloseExcelFile,
+    MicroCommandCloseExcelFileResult,
     MicroCommandConsole,
     MicroCommandConsoleResult,
     MicroCommandName,
+    MicroCommandOpenExcelFile,
+    MicroCommandOpenExcelFileResult,
     MicroCommandResult,
     MicroCommandResultError,
+    MicroCommandSaveExcelFile,
+    MicroCommandSaveExcelFileResult,
 } from "./microCommand/MicroCommand";
 import { ProtocolMessageType } from "../../addin/ProtocolMessage";
 import { globalLog } from "../globalLog";
+import { globalProcesses } from "../globalProcesses";
+import { embedAddIn } from "./utility/embedAddin";
+import { getAndSaveExcelContents } from "./utility/getAndSaveExcelContents";
 
 async function runMicroCommandPing(
     command: MicroCommandAddinPing,
@@ -39,6 +52,80 @@ function runMicroCommandConsole(command: MicroCommandConsole): MicroCommandConso
     return { success: true };
 }
 
+async function runMicroCommandAddinEval(
+    command: MicroCommandAddinEval,
+): Promise<MicroCommandAddinEvalResult | MicroCommandResultError> {
+    const evalResult = await globalWebsocket.sendEval(command.parameters.code);
+    const { error, result, console: consoleOutput } = evalResult.data;
+
+    return { success: true, values: { console: consoleOutput, result, error } };
+}
+
+async function runMicroCommandOpenExcelFile(
+    command: MicroCommandOpenExcelFile,
+): Promise<MicroCommandOpenExcelFileResult | MicroCommandResultError> {
+    const { filePath } = command.parameters;
+
+    const { dir, name, ext } = path.parse(filePath);
+    const filePathTemp = path.join(dir, `${name}-temp${ext}`);
+
+    const manifestPath = path.normalize(path.join(__dirname, "manifest.xml"));
+    embedAddIn(filePath, manifestPath, filePathTemp);
+
+    const excelPathBase = String.raw`C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE`;
+    const excelPathX86 = String.raw`C:\Program Files (x86)\Microsoft Office\root\Office16\EXCEL.EXE`;
+    const excelPath = fs.existsSync(excelPathBase)
+        ? excelPathBase
+        : fs.existsSync(excelPathX86)
+        ? excelPathX86
+        : undefined;
+
+    if (!excelPath) {
+        return { success: false, error: "Excel executable not found" };
+    }
+
+    const id = globalProcesses.spawn(excelPath, [filePathTemp], {
+        tag: "excel",
+        filePathSource: filePath,
+        filePathOpen: filePathTemp,
+    });
+
+    return { success: true, id };
+}
+
+async function runMicroCommandCloseExcelFile(
+    command: MicroCommandCloseExcelFile,
+): Promise<MicroCommandCloseExcelFileResult> {
+    const { id, filePath } = command.parameters;
+
+    let targetPid: number | undefined = undefined;
+
+    if (filePath) {
+        for (const [pid, metadata] of globalProcesses.getAllPidMetadata()) {
+            if (metadata.tag === "excel" && metadata.filePathSource === filePath) {
+                targetPid = pid;
+            }
+        }
+    } else if (id) {
+        targetPid = id;
+    }
+
+    if (targetPid === undefined) {
+        await globalProcesses.endAllAsync();
+    } else {
+        await globalProcesses.endByPidAndWait(targetPid);
+    }
+
+    return { success: true };
+}
+
+async function runMicroCommandSaveExcelFile(
+    command: MicroCommandSaveExcelFile,
+): Promise<MicroCommandSaveExcelFileResult> {
+    await getAndSaveExcelContents(command.parameters.filePath);
+    return { success: true };
+}
+
 async function runMicroSingleCommand(command: MicroCommand): Promise<MicroCommandResult> {
     const { name } = command;
     globalLog.log(`Run micro command: ${name}`, { indent: 1 });
@@ -47,6 +134,14 @@ async function runMicroSingleCommand(command: MicroCommand): Promise<MicroComman
             return runMicroCommandConsole(command);
         case MicroCommandName.AddinPing:
             return await runMicroCommandPing(command);
+        case MicroCommandName.AddinEval:
+            return await runMicroCommandAddinEval(command);
+        case MicroCommandName.OpenExcelFile:
+            return await runMicroCommandOpenExcelFile(command);
+        case MicroCommandName.CloseExcelFile:
+            return await runMicroCommandCloseExcelFile(command);
+        case MicroCommandName.SaveExcelFile:
+            return await runMicroCommandSaveExcelFile(command);
         default:
             console.warn(`Unknown command: ${name}`);
             return { success: false, error: `Unknown command: ${name}` };
