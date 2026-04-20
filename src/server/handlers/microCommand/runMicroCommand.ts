@@ -1,0 +1,30 @@
+import { globalLog } from "../../globalLog";
+import { MicroCommand, MicroCommandResult, MicroCommandName } from "./MicroCommand";
+import { runMicroCommandAddinEval } from "./runMicroCommandAddinEval";
+import { runMicroCommandAddinPing } from "./runMicroCommandAddinPing";
+import { runMicroCommandCloseExcelFile } from "./runMicroCommandCloseExcelFile";
+import { runMicroCommandConsole } from "./runMicroCommandConsole";
+import { runMicroCommandOpenExcelFile } from "./runMicroCommandOpenExcelFile";
+import { runMicroCommandSaveExcelFile } from "./runMicroCommandSaveExcelFile";
+
+export async function runMicroCommand(command: MicroCommand): Promise<MicroCommandResult> {
+    const { name } = command;
+    globalLog.log(`Run micro command: ${name}`, { indent: 1 });
+    switch (name) {
+        case MicroCommandName.Console:
+            return runMicroCommandConsole(command);
+        case MicroCommandName.AddinPing:
+            return await runMicroCommandAddinPing(command);
+        case MicroCommandName.AddinEval:
+            return await runMicroCommandAddinEval(command);
+        case MicroCommandName.OpenExcelFile:
+            return await runMicroCommandOpenExcelFile(command);
+        case MicroCommandName.CloseExcelFile:
+            return await runMicroCommandCloseExcelFile(command);
+        case MicroCommandName.SaveExcelFile:
+            return await runMicroCommandSaveExcelFile(command);
+        default:
+            console.warn(`Unknown command: ${name}`);
+            return { success: false, error: `Unknown command: ${name}` };
+    }
+}
