@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { readFile, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import * as path from "node:path";
 
 test("GET / ping", async ({ request }) => {
@@ -70,4 +70,23 @@ test("Close Excel File", async ({ request }) => {
         },
     });
     expect(response.ok()).toBeTruthy();
+});
+
+test("Run Micro Command - Console", async ({ request }) => {
+    const response = await request.post("/run-micro-commands", {
+        data: {
+            commands: [
+                {
+                    name: "Console",
+                    parameters: {
+                        message: "Hello, World!",
+                    },
+                },
+            ],
+        },
+    });
+    expect(response.ok()).toBeTruthy();
+    const body = await response.text();
+    const message = JSON.parse(body);
+    expect(message.results[0].success).toBeTruthy();
 });

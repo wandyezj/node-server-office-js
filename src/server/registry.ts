@@ -6,6 +6,7 @@ import { getServeFile } from "./handlers/getServeFile";
 import { openExcelFile } from "./handlers/openExcelFile";
 import { addinPing } from "./handlers/addinPing";
 import { saveExcelFile } from "./handlers/saveExcelFile";
+import { runMicroCommands } from "./handlers/runMicroCommands";
 
 export function getFile(
     filePath: string,
@@ -50,4 +51,7 @@ export const registry: [FunctionRequestMatcher, FunctionRequestHandler][] = [
     // Addin Websocket Operations
     [getMatcher({ method: "POST", url: "/addin-ping" }), addinPing],
     [getMatcher({ method: "POST", url: "/addin-eval" }), addinEval],
+
+    // Micro Command
+    [getMatcher({ method: "POST", url: "/run-micro-commands" }), runMicroCommands],
 ];
