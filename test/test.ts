@@ -167,3 +167,44 @@ test("Run Micro Command - Close Excel File", async ({ request }) => {
     const message = JSON.parse(body);
     expect(message.results[0].success).toBeTruthy();
 });
+
+test("Run Micro Commands - Open, Eval, Save, Close", async ({ request }) => {
+    const code = readFileSync(defaultCodeFilePath, "utf-8");
+    const response = await request.post("/run-micro-commands", {
+        data: {
+            commands: [
+                {
+                    name: "OpenExcelFile",
+                    parameters: {
+                        filePath: defaultFilePath,
+                    },
+                },
+                {
+                    name: "AddinEval",
+                    parameters: {
+                        code,
+                    },
+                },
+                {
+                    name: "SaveExcelFile",
+                    parameters: {
+                        filePath: defaultFileOutPath,
+                    },
+                },
+                {
+                    name: "CloseExcelFile",
+                    parameters: {
+                        filePath: defaultFilePath,
+                    },
+                },
+            ],
+        },
+    });
+    expect(response.ok()).toBeTruthy();
+    const body = await response.text();
+    const message = JSON.parse(body);
+    expect(message.results).toHaveLength(4);
+    for (const result of message.results) {
+        expect(result.success).toBeTruthy();
+    }
+});
