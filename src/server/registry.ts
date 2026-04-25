@@ -1,11 +1,6 @@
 import { getMatcher } from "./getMatcher";
 import { FunctionRequestMatcher, FunctionRequestHandler } from "./handleRequest";
-import { closeExcelFile } from "./handlers/closeExcelFile";
-import { addinEval } from "./handlers/addinEval";
 import { getServeFile } from "./handlers/getServeFile";
-import { openExcelFile } from "./handlers/openExcelFile";
-import { addinPing } from "./handlers/addinPing";
-import { saveExcelFile } from "./handlers/saveExcelFile";
 import { runMicroCommands } from "./handlers/runMicroCommands";
 
 export function getFile(
@@ -38,9 +33,6 @@ export const registry: [FunctionRequestMatcher, FunctionRequestHandler][] = [
         },
     ],
     // Excel file operations (some use websockets)
-    [getMatcher({ method: "POST", url: "/open-excel-file" }), openExcelFile],
-    [getMatcher({ method: "POST", url: "/close-excel-file" }), closeExcelFile],
-    [getMatcher({ method: "POST", url: "/save-excel-file" }), saveExcelFile],
 
     // Addin Files
     getFile("taskpane.html", "text/html"),
@@ -49,8 +41,6 @@ export const registry: [FunctionRequestMatcher, FunctionRequestHandler][] = [
     getFile("icon-80.png", "image/png"),
 
     // Addin Websocket Operations
-    [getMatcher({ method: "POST", url: "/addin-ping" }), addinPing],
-    [getMatcher({ method: "POST", url: "/addin-eval" }), addinEval],
 
     // Micro Command
     [getMatcher({ method: "POST", url: "/run-micro-commands" }), runMicroCommands],
