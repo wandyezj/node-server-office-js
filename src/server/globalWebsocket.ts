@@ -6,6 +6,7 @@ import {
     ProtocolMessageEvalResult,
     ProtocolMessageParameters,
     ProtocolMessagePing,
+    ProtocolMessageReady,
     ProtocolMessageServerSend,
     ProtocolMessageSource,
     ProtocolMessageType,
@@ -16,6 +17,7 @@ import { globalLog } from "./globalLog";
 class WebsocketManager {
     #send: (data: string) => void = () => {};
     #sequence: number = 0;
+    #connectionWaiters: (() => void)[] = [];
 
     // Only allow a single resolve reject at a time
     #lastResolveReject:
@@ -41,7 +43,28 @@ class WebsocketManager {
         this.#send = send;
     }
 
+    waitForConnection(): Promise<void> {
+        return new Promise((resolve) => {
+            this.#connectionWaiters.push(resolve);
+        });
+    }
+
+    private resolveConnectionWaiters(): void {
+        while (this.#connectionWaiters.length > 0) {
+            const resolve = this.#connectionWaiters.pop();
+            if (resolve) {
+                resolve();
+            }
+        }
+    }
+
     handleMessage(data: string): void {
+        if (data === ProtocolMessageReady) {
+            console.log("Client is ready");
+            this.resolveConnectionWaiters();
+            return;
+        }
+
         // Handle incoming message
         const result = parseJson<ProtocolMessageClientResult>(data);
 

@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { globalProcesses } from "../../globalProcesses";
+import { globalWebsocket } from "../../globalWebsocket";
 import { embedAddIn } from "../utility/embedAddin";
 import {
     MicroCommandOpenExcelFile,
@@ -31,11 +32,15 @@ export async function runMicroCommandOpenExcelFile(
         return { success: false, error: "Excel executable not found" };
     }
 
+    const connectionPromise = globalWebsocket.waitForConnection();
+
     const id = globalProcesses.spawn(excelPath, [filePathTemp], {
         tag: "excel",
         filePathSource: filePath,
         filePathOpen: filePathTemp,
     });
+
+    await connectionPromise;
 
     return { success: true, id };
 }

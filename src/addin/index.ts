@@ -1,7 +1,7 @@
 console.log("Client");
 import config from "./../server/config.json";
 import { handleProtocolMessage } from "./handleProtocolMessage";
-import { ProtocolMessage } from "./ProtocolMessage";
+import { ProtocolMessageReady } from "./ProtocolMessage";
 
 function startWebsocket() {
     // 1. Establish the connection
@@ -11,7 +11,7 @@ function startWebsocket() {
     // 2. Connection opened
     socket.addEventListener("open", (event) => {
         console.log("Connected to the server!");
-        socket.send("Message from client");
+        socket.send(ProtocolMessageReady);
     });
 
     // 3. Listen for messages

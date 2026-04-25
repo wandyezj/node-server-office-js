@@ -48,6 +48,11 @@ export enum ProtocolMessageType {
 //
 
 /**
+ * Sent from the client to tell the server it's ready
+ */
+export const ProtocolMessageReady = "ready";
+
+/**
  * Error parsing the message
  */
 export interface ProtocolMessageErrorResult {
