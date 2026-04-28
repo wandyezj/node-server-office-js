@@ -1,5 +1,6 @@
 // This script takes in an excel file path, cracks it open, extracts all the files in it,
-// and then formats all of the xml files.
+// formats all of the xml files, and puts it in an output directory.
+// This allows simple text comparison of before and after.
 
 const fs = require("node:fs");
 const path = require("node:path");

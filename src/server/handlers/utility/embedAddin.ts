@@ -135,3 +135,77 @@ export function embedAddIn(excelPath: string, manifestPath: string, outputPath: 
 
 // Example usage:
 // embedAddIn('./template.xlsx', './manifest.xml', './output_with_addin.xlsx');
+
+/**
+ * Remove what was embedded from the excel file
+ * @param excelPath
+ * @param outputPath
+ */
+export function unembedAddin(excelPath: string, outputPath: string) {
+    const zip = new AdmZip(excelPath);
+    const serializer = new XMLSerializer();
+    const parser = new DOMParser();
+
+    // Reverse Steps: 2,3,4
+    // Remove added files.
+    const embeddedPaths = [
+        "xl/webextensions/webextension1.xml",
+        "xl/webextensions/taskpanes.xml",
+        "xl/webextensions/_rels/taskpanes.xml.rels",
+    ];
+
+    embeddedPaths.forEach((embeddedPath) => {
+        zip.deleteFile(embeddedPath);
+    });
+
+    // Reverse Step: 5
+    const rootRelsPath = "_rels/.rels";
+    const rootRelsEntry = zip.getEntry(rootRelsPath);
+    if (rootRelsEntry) {
+        const rootRelsDoc = parser.parseFromString(zip.readAsText(rootRelsPath), "text/xml");
+        const matchingRels = Array.from(rootRelsDoc.getElementsByTagName("Relationship")).filter(
+            (relationship) =>
+                relationship.getAttribute("Target") === "xl/webextensions/taskpanes.xml" &&
+                relationship.getAttribute("Type") ===
+                    "http://schemas.microsoft.com/office/2011/relationships/webextensiontaskpanes",
+        );
+
+        matchingRels.forEach((relationship) => {
+            relationship.parentNode?.removeChild(relationship);
+        });
+
+        zip.updateFile(rootRelsPath, Buffer.from(serializer.serializeToString(rootRelsDoc)));
+    }
+
+    // Reverse Step 6
+    const contentTypesPath = "[Content_Types].xml";
+    const contentTypesEntry = zip.getEntry(contentTypesPath);
+    if (contentTypesEntry) {
+        const embeddedPartNames = new Set([
+            "/xl/webextensions/webextension1.xml",
+            "/xl/webextensions/taskpanes.xml",
+        ]);
+        const contentTypesDoc = parser.parseFromString(
+            zip.readAsText(contentTypesPath),
+            "text/xml",
+        );
+        const matchingOverrides = Array.from(
+            contentTypesDoc.getElementsByTagName("Override"),
+        ).filter((override) => {
+            const partName = override.getAttribute("PartName");
+            return partName !== null && embeddedPartNames.has(partName);
+        });
+
+        matchingOverrides.forEach((override) => {
+            override.parentNode?.removeChild(override);
+        });
+
+        zip.updateFile(
+            contentTypesPath,
+            Buffer.from(serializer.serializeToString(contentTypesDoc)),
+        );
+    }
+
+    zip.writeZip(outputPath);
+    globalLog.log(`Success! File saved to: ${outputPath}`);
+}
