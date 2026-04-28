@@ -20,7 +20,9 @@
         "excel-ping": "npm run ping -- --addin-ping",
         "excel-eval": "npm run ping -- --addin-eval",
         "cert-install": "npx office-addin-dev-certs install",
-        "cert-verify": "npx office-addin-dev-certs verify"
+        "cert-verify": "npx office-addin-dev-certs verify",
+        "format-ooxml": "node ./scripts/crack-and-format-ooxml.js --output-directory ./test-results/ooxml --input-file-path",
+        "format-test": "npm run format-ooxml -- ./test/test.xlsx && npm run format-ooxml -- ./test/test-out.xlsx"
     },
     "repository": {
         "type": "git",
@@ -38,19 +40,20 @@
         "@types/html-webpack-plugin": "^3.2.9",
         "@types/node": "^22.15.2",
         "@types/office-js": "^1.0.587",
+        "@types/ws": "^8.18.1",
         "clean-webpack-plugin": "^4.0.0",
         "copy-webpack-plugin": "^14.0.0",
         "html-webpack-plugin": "^5.6.6",
-        "office-addin-dev-certs": "^2.0.7",
-        "prettier": "2.8.4",
+        "office-addin-dev-certs": "^1.9.1",
+        "prettier": "3.8.3",
         "ts-loader": "^9.5.4",
         "ts-node": "^10.9.2",
         "typescript": "^6.0.2",
         "webpack": "^5.104.1",
-        "webpack-cli": "^6.0.1",
-        "@types/ws": "^8.18.1"
+        "webpack-cli": "^6.0.1"
     },
     "dependencies": {
+        "@prettier/plugin-xml": "^3.4.2",
         "@xmldom/xmldom": "^0.9.9",
         "adm-zip": "^0.5.17",
         "ws": "^8.20.0"
