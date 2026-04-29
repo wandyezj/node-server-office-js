@@ -136,13 +136,25 @@ export function embedAddIn(excelPath: string, manifestPath: string, outputPath: 
 // Example usage:
 // embedAddIn('./template.xlsx', './manifest.xml', './output_with_addin.xlsx');
 
+export function extractAddinFromZipFile(excelPath: string, outputPath: string) {
+    const zip = new AdmZip(excelPath);
+    extractAddin(zip);
+    zip.writeZip(outputPath);
+    globalLog.log(`Success! File saved to: ${outputPath}`);
+}
+
+export function extractAddinFromZipBuffer(buffer: Buffer): Buffer {
+    const zip = new AdmZip(buffer);
+    extractAddin(zip);
+    return zip.toBuffer();
+}
+
 /**
  * Remove what was embedded from the excel file
  * @param excelPath
  * @param outputPath
  */
-export function unembedAddin(excelPath: string, outputPath: string) {
-    const zip = new AdmZip(excelPath);
+export function extractAddin(zip: AdmZip) {
     const serializer = new XMLSerializer();
     const parser = new DOMParser();
 
@@ -205,7 +217,4 @@ export function unembedAddin(excelPath: string, outputPath: string) {
             Buffer.from(serializer.serializeToString(contentTypesDoc)),
         );
     }
-
-    zip.writeZip(outputPath);
-    globalLog.log(`Success! File saved to: ${outputPath}`);
 }

@@ -5,6 +5,7 @@ import {
     MicroCommandPowerShellSaveActiveWorkbookAs,
     MicroCommandPowerShellSaveActiveWorkbookAsResult,
 } from "./MicroCommand";
+import { extractAddinFromZipFile } from "../utility/embedAddin";
 
 /**
  * Saves the currently open Excel workbook to a new location.
@@ -12,8 +13,8 @@ import {
  */
 function saveActiveExcelWorkbookAs(destinationPath: string) {
     // Convert to an absolute path for Windows COM
-    const absolutePath = path.resolve(destinationPath);
-    if (absolutePath.includes("'")) {
+    const filePath = path.resolve(destinationPath);
+    if (filePath.includes("'")) {
         throw "File path cannot contain single quotes.";
     }
 
@@ -23,8 +24,8 @@ function saveActiveExcelWorkbookAs(destinationPath: string) {
         $wb = $excel.ActiveWorkbook;
         if ($wb) {
             $excel.DisplayAlerts = $false;
-            $wb.SaveAs('${absolutePath}');
-            Write-Host 'Successfully saved to: ${absolutePath}';
+            $wb.SaveAs('${filePath}');
+            Write-Host 'Successfully saved to: ${filePath}';
         } else {
             Write-Error 'No active workbook found.';
         }
@@ -33,6 +34,9 @@ function saveActiveExcelWorkbookAs(destinationPath: string) {
     // Run the command
     const output = execSync(`powershell -Command "${psCommand.replace(/\n/g, " ")}"`);
     console.log(output.toString().trim());
+
+    // Remove the embedded Add-In from the saved file
+    extractAddinFromZipFile(filePath, filePath);
 }
 
 export async function runMicroCommandPowerShellSaveActiveWorkbookAs(

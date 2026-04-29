@@ -9,6 +9,7 @@ export enum MicroCommandName {
     PowerShellCloseExcelFile = "PowerShellCloseExcelFile",
     PowerShellSaveExcelFile = "PowerShellSaveExcelFile",
     PowerShellSaveActiveWorkbookAs = "PowerShellSaveActiveWorkbookAs",
+    ForceCloseExcel = "ForceCloseExcel",
 }
 
 export interface MicroCommandBaseResult {
@@ -157,6 +158,17 @@ export interface MicroCommandPowerShellSaveActiveWorkbookAsResult extends MicroC
     success: true;
 }
 
+/**
+ * Force stop all Excel instances running on the machine using PowerShell.
+ */
+export interface MicroCommandForceCloseExcel {
+    name: MicroCommandName.ForceCloseExcel;
+}
+
+export interface MicroCommandForceCloseExcelResult extends MicroCommandBaseResult {
+    success: true;
+}
+
 // Aggregates
 
 export interface MicroCommandResultError {
@@ -174,7 +186,8 @@ export type MicroCommand =
     | MicroCommandPowerShellOpenExcelFile
     | MicroCommandPowerShellCloseExcelFile
     | MicroCommandPowerShellSaveExcelFile
-    | MicroCommandPowerShellSaveActiveWorkbookAs;
+    | MicroCommandPowerShellSaveActiveWorkbookAs
+    | MicroCommandForceCloseExcel;
 
 export type MicroCommandResult =
     | MicroCommandResultError
@@ -187,7 +200,8 @@ export type MicroCommandResult =
     | MicroCommandPowerShellOpenExcelFileResult
     | MicroCommandPowerShellCloseExcelFileResult
     | MicroCommandPowerShellSaveExcelFileResult
-    | MicroCommandPowerShellSaveActiveWorkbookAsResult;
+    | MicroCommandPowerShellSaveActiveWorkbookAsResult
+    | MicroCommandForceCloseExcelResult;
 
 export interface MicroCommandBody {
     commands: MicroCommand[];

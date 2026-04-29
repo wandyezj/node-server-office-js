@@ -123,7 +123,7 @@ class PowerShellManager {
         await getAndSaveExcelContents(filePath);
     }
 
-    async closeExcelFile(id?: number, filePath?: string): Promise<void> {
+    async closeExcelFile(): Promise<void> {
         globalLog.log("Close Excel File", { indent: 1 });
         if (this.#ps === undefined) {
             return;

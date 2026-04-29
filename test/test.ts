@@ -208,6 +208,9 @@ test("Run Micro Commands - Open, Eval, SaveAs, Close", async ({ request }) => {
     const microCommandBody: MicroCommandBody = {
         commands: [
             {
+                name: MicroCommandName.ForceCloseExcel,
+            },
+            {
                 name: MicroCommandName.OpenExcelFile,
                 parameters: {
                     filePath: defaultFilePath,
@@ -239,8 +242,25 @@ test("Run Micro Commands - Open, Eval, SaveAs, Close", async ({ request }) => {
     });
     expect(response.ok()).toBeTruthy();
     const body = await response.text();
-    const message = JSON.parse(body);
-    expect(message.results).toHaveLength(4);
+    const message = JSON.parse(body) as { results: { success: boolean }[] };
+
+    // Check each command for success
+    message.results.forEach((value, index) => {
+        const joined = {
+            result: value,
+            command: microCommandBody.commands[index],
+        };
+        expect(joined).toEqual(
+            expect.objectContaining({
+                result: expect.objectContaining({
+                    success: true,
+                }),
+            }),
+        );
+    });
+
+    // Every command has a result
+    expect(message.results).toHaveLength(microCommandBody.commands.length);
     for (const result of message.results) {
         expect(result.success).toBeTruthy();
     }

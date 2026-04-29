@@ -7,7 +7,6 @@ import {
 export async function runMicroCommandPowerShellCloseExcelFile(
     command: MicroCommandPowerShellCloseExcelFile,
 ): Promise<MicroCommandPowerShellCloseExcelFileResult> {
-    const { id, filePath } = command.parameters;
-    await globalPowerShell.closeExcelFile(id, filePath);
+    await globalPowerShell.closeExcelFile();
     return { success: true };
 }

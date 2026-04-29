@@ -2,6 +2,7 @@ import { writeFileSync } from "node:fs";
 import { globalWebsocket } from "../../globalWebsocket";
 import { codeGetFileContentsBase64 } from "./codeGetFileBase64";
 import { globalLog } from "../../globalLog";
+import { extractAddinFromZipBuffer } from "./embedAddin";
 
 function saveBase64ToFile(base64String: string, filePath: string) {
     // 1. Remove the data URL prefix if it exists (e.g., "data:application/vnd...;base64,")
@@ -10,8 +11,11 @@ function saveBase64ToFile(base64String: string, filePath: string) {
     // 2. Convert Base64 string to a Buffer
     const buffer = Buffer.from(base64Data, "base64");
 
-    // 3. Write the buffer to the disk
-    writeFileSync(filePath, buffer);
+    // 3. Remove the embedded Add-In from the buffer
+    const bufferClean = extractAddinFromZipBuffer(buffer);
+
+    // 4. Write the buffer to the disk
+    writeFileSync(filePath, bufferClean);
     globalLog.log(`File saved successfully to: ${filePath}`);
 }
 
