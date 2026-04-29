@@ -136,10 +136,14 @@ export function embedAddIn(excelPath: string, manifestPath: string, outputPath: 
 // Example usage:
 // embedAddIn('./template.xlsx', './manifest.xml', './output_with_addin.xlsx');
 
-export function extractAddinFromZipFile(excelPath: string, outputPath: string) {
-    const zip = new AdmZip(excelPath);
+export function extractAddinFromZipFile(inputPath: string, outputPath: string) {
+    const zip = new AdmZip(inputPath);
     extractAddin(zip);
-    zip.writeZip(outputPath);
+    if (inputPath === outputPath) {
+        zip.writeZip();
+    } else {
+        zip.writeZip(outputPath);
+    }
     globalLog.log(`Success! File saved to: ${outputPath}`);
 }
 

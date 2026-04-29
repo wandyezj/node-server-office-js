@@ -6,6 +6,14 @@ function getIndent(indent: number | undefined) {
     return " ".repeat(indent * 4);
 }
 
+function applyIndent(message: string, indent: number) {
+    const indentStr = getIndent(indent);
+    return message
+        .split("\n")
+        .map((line) => indentStr + line)
+        .join("\n");
+}
+
 class CommonLogger {
     #indent = 0;
 
@@ -19,8 +27,18 @@ class CommonLogger {
         }
     }
 
-    log(message: string, options?: { indent?: number }) {
-        console.log(getIndent(options?.indent ?? this.#indent) + message);
+    #getIndent(options?: { indent?: number; indentAdjust?: number }): number {
+        return Math.max(0, (options?.indent ?? this.#indent) + (options?.indentAdjust ?? 0));
+    }
+
+    log(message: string, options?: { indent?: number; indentAdjust?: number }) {
+        const indent = this.#getIndent(options);
+        console.log(applyIndent(message, indent));
+    }
+
+    error(message: string, options?: { indent?: number; indentAdjust?: number }) {
+        const indent = this.#getIndent(options);
+        console.error(applyIndent(message, indent));
     }
 }
 

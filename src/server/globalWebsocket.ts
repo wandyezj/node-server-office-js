@@ -60,7 +60,7 @@ class WebsocketManager {
 
     handleMessage(data: string): void {
         if (data === ProtocolMessageReady) {
-            console.log("Client is ready");
+            globalLog.log("Client is ready");
             this.resolveConnectionWaiters();
             return;
         }
@@ -69,15 +69,15 @@ class WebsocketManager {
         const result = parseJson<ProtocolMessageClientResult>(data);
 
         if (!result) {
-            console.error("Failed to parse incoming message:", data);
+            globalLog.error(`Failed to parse incoming message:\n${data}`);
             return;
         }
 
         const { type, sequence, message } = result;
 
-        console.log(`Websocket Receive: [${sequence}] [${type}] ${message}`);
+        globalLog.log(`Websocket Receive: [${sequence}] [${type}] ${message}`);
         globalLog.log(`lastResolveReject sequence: ${this.#lastResolveReject?.sequence}`, {
-            indent: 1,
+            indentAdjust: 1,
         });
 
         if (this.#lastResolveReject && this.#lastResolveReject.sequence === sequence) {
@@ -91,7 +91,7 @@ class WebsocketManager {
         const result = this.getPromise(sequence);
         const { type, message } = item;
 
-        console.log(`Websocket Send: [${sequence}] [${type}] ${message}`);
+        globalLog.log(`Websocket Send: [${sequence}] [${type}] ${message}`);
 
         const data = JSON.stringify({
             ...item,

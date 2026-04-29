@@ -83,11 +83,11 @@ if (config.socket.enabled) {
         ws.on("error", console.error);
 
         ws.on("message", async function message(data) {
-            console.log(`Websocket received: ${data}`);
+            globalLog.log(`Websocket received: ${data}`);
             try {
                 await globalWebsocket.handleMessage(`${data}`);
             } catch (error) {
-                console.error("Error handling websocket message:", error);
+                globalLog.error(`Error handling websocket message: ${error}`);
             }
         });
 

@@ -1,11 +1,11 @@
 import { execSync } from "node:child_process";
 import * as path from "node:path";
-import { globalLog } from "../../globalLog";
 import {
     MicroCommandPowerShellSaveActiveWorkbookAs,
     MicroCommandPowerShellSaveActiveWorkbookAsResult,
 } from "./MicroCommand";
 import { extractAddinFromZipFile } from "../utility/embedAddin";
+import { globalLog } from "../../globalLog";
 
 /**
  * Saves the currently open Excel workbook to a new location.
@@ -24,19 +24,21 @@ function saveActiveExcelWorkbookAs(destinationPath: string) {
         $wb = $excel.ActiveWorkbook;
         if ($wb) {
             $excel.DisplayAlerts = $false;
-            $wb.SaveAs('${filePath}');
+            $wb.SaveCopyAs('${filePath}');
             Write-Host 'Successfully saved to: ${filePath}';
         } else {
             Write-Error 'No active workbook found.';
         }
+        exit 0
     `;
 
     // Run the command
     const output = execSync(`powershell -Command "${psCommand.replace(/\n/g, " ")}"`);
-    console.log(output.toString().trim());
+    globalLog.log(output.toString().trim());
 
     // Remove the embedded Add-In from the saved file
     extractAddinFromZipFile(filePath, filePath);
+    globalLog.log(`Removed embedded Add-In from: ${filePath}`);
 }
 
 export async function runMicroCommandPowerShellSaveActiveWorkbookAs(
