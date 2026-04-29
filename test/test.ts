@@ -202,3 +202,46 @@ test("Run Micro Commands - Open, Eval, Save, Close (PowerShell)", async ({ reque
         expect(result.success).toBeTruthy();
     }
 });
+
+test("Run Micro Commands - Open, Eval, SaveAs, Close", async ({ request }) => {
+    const code = readFileSync(defaultCodeFilePath, "utf-8");
+    const microCommandBody: MicroCommandBody = {
+        commands: [
+            {
+                name: MicroCommandName.OpenExcelFile,
+                parameters: {
+                    filePath: defaultFilePath,
+                },
+            },
+            {
+                name: MicroCommandName.AddinEval,
+                parameters: {
+                    code,
+                },
+            },
+            {
+                name: MicroCommandName.PowerShellSaveActiveWorkbookAs,
+                parameters: {
+                    filePath: defaultFileOutPath,
+                },
+            },
+            {
+                name: MicroCommandName.CloseExcelFile,
+                parameters: {
+                    filePath: defaultFilePath,
+                },
+            },
+        ],
+    };
+
+    const response = await request.post("/run-micro-commands", {
+        data: microCommandBody,
+    });
+    expect(response.ok()).toBeTruthy();
+    const body = await response.text();
+    const message = JSON.parse(body);
+    expect(message.results).toHaveLength(4);
+    for (const result of message.results) {
+        expect(result.success).toBeTruthy();
+    }
+});

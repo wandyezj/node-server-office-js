@@ -8,6 +8,7 @@ export enum MicroCommandName {
     PowerShellOpenExcelFile = "PowerShellOpenExcelFile",
     PowerShellCloseExcelFile = "PowerShellCloseExcelFile",
     PowerShellSaveExcelFile = "PowerShellSaveExcelFile",
+    PowerShellSaveActiveWorkbookAs = "PowerShellSaveActiveWorkbookAs",
 }
 
 export interface MicroCommandBaseResult {
@@ -142,6 +143,20 @@ export interface MicroCommandPowerShellSaveExcelFileResult extends MicroCommandB
     success: true;
 }
 
+/**
+ * Save the active Excel workbook to a new location using PowerShell.
+ */
+export interface MicroCommandPowerShellSaveActiveWorkbookAs {
+    name: MicroCommandName.PowerShellSaveActiveWorkbookAs;
+    parameters: {
+        filePath: string;
+    };
+}
+
+export interface MicroCommandPowerShellSaveActiveWorkbookAsResult extends MicroCommandBaseResult {
+    success: true;
+}
+
 // Aggregates
 
 export interface MicroCommandResultError {
@@ -158,7 +173,8 @@ export type MicroCommand =
     | MicroCommandSaveExcelFile
     | MicroCommandPowerShellOpenExcelFile
     | MicroCommandPowerShellCloseExcelFile
-    | MicroCommandPowerShellSaveExcelFile;
+    | MicroCommandPowerShellSaveExcelFile
+    | MicroCommandPowerShellSaveActiveWorkbookAs;
 
 export type MicroCommandResult =
     | MicroCommandResultError
@@ -170,7 +186,8 @@ export type MicroCommandResult =
     | MicroCommandSaveExcelFileResult
     | MicroCommandPowerShellOpenExcelFileResult
     | MicroCommandPowerShellCloseExcelFileResult
-    | MicroCommandPowerShellSaveExcelFileResult;
+    | MicroCommandPowerShellSaveExcelFileResult
+    | MicroCommandPowerShellSaveActiveWorkbookAsResult;
 
 export interface MicroCommandBody {
     commands: MicroCommand[];
