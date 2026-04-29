@@ -22,7 +22,7 @@
         "cert-install": "npx office-addin-dev-certs install",
         "cert-verify": "npx office-addin-dev-certs verify",
         "format-ooxml": "node ./scripts/crack-and-format-ooxml.js --output-directory ./test-results/ooxml --input-file-path",
-        "format-test": "npm run format-ooxml -- ./test/test.xlsx && npm run format-ooxml -- ./test/test-out.xlsx"
+        "format-test": "npm run format-ooxml -- ./test/test.xlsx && npm run format-ooxml -- ./test/test-temp.xlsx && npm run format-ooxml -- ./test/test-out.xlsx"
     },
     "repository": {
         "type": "git",

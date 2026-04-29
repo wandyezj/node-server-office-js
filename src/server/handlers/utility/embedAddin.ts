@@ -63,6 +63,12 @@ export function embedAddIn(excelPath: string, manifestPath: string, outputPath: 
     zip.addFile(taskpaneRelsPath, Buffer.from(taskpaneRelsXml));
 
     // 5. Update _rels/.rels (package-level rels)
+    // Adds:
+    // <Relationship
+    //     Id="rId5"
+    //     Type="http://schemas.microsoft.com/office/2011/relationships/webextensiontaskpanes"
+    //     Target="xl/webextensions/taskpanes.xml"
+    // />
     const rootRelsPath = "_rels/.rels";
     const rootRelsDoc = parser.parseFromString(zip.readAsText(rootRelsPath), "text/xml");
     const relsRoot = rootRelsDoc.getElementsByTagName("Relationships")[0];
@@ -99,6 +105,15 @@ export function embedAddIn(excelPath: string, manifestPath: string, outputPath: 
     }
 
     // 6. Update [Content_Types].xml
+    // Adds:
+    // <Override
+    //     PartName="/xl/webextensions/webextension1.xml"
+    //     ContentType="application/vnd.ms-office.webextension+xml"
+    // />
+    // <Override
+    //     PartName="/xl/webextensions/taskpanes.xml"
+    //     ContentType="application/vnd.ms-office.webextensiontaskpanes+xml"
+    // />
     const contentTypesPath = "[Content_Types].xml";
     const contentTypesDoc = parser.parseFromString(zip.readAsText(contentTypesPath), "text/xml");
     const typesRoot = contentTypesDoc.getElementsByTagName("Types")[0];
@@ -186,11 +201,12 @@ export function extractAddin(zip: AdmZip) {
                     "http://schemas.microsoft.com/office/2011/relationships/webextensiontaskpanes",
         );
 
-        matchingRels.forEach((relationship) => {
+        // Only remove the last one
+        const relationship = matchingRels.pop();
+        if (relationship) {
             relationship.parentNode?.removeChild(relationship);
-        });
-
-        zip.updateFile(rootRelsPath, Buffer.from(serializer.serializeToString(rootRelsDoc)));
+            zip.updateFile(rootRelsPath, Buffer.from(serializer.serializeToString(rootRelsDoc)));
+        }
     }
 
     // Reverse Step 6
@@ -212,13 +228,15 @@ export function extractAddin(zip: AdmZip) {
             return partName !== null && embeddedPartNames.has(partName);
         });
 
-        matchingOverrides.forEach((override) => {
-            override.parentNode?.removeChild(override);
-        });
+        if (matchingOverrides.length > 0) {
+            matchingOverrides.forEach((override) => {
+                override.parentNode?.removeChild(override);
+            });
 
-        zip.updateFile(
-            contentTypesPath,
-            Buffer.from(serializer.serializeToString(contentTypesDoc)),
-        );
+            zip.updateFile(
+                contentTypesPath,
+                Buffer.from(serializer.serializeToString(contentTypesDoc)),
+            );
+        }
     }
 }
