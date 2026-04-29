@@ -1,12 +1,8 @@
 import * as http from "node:http";
 import { writeResponseJson } from "./utility/writeResponseJson";
 import { getRequestBody } from "./utility/getRequestBody";
-import {
-    MicroCommandBody,
-    MicroCommandBodyResult,
-    MicroCommandResult,
-} from "./microCommand/MicroCommand";
-import { runMicroCommand } from "./microCommand/runMicroCommand";
+import { MicroCommandBody, MicroCommandBodyResult } from "./microCommand/MicroCommand";
+import { runMicroCommandBody } from "./microCommand/runMicroCommandBody";
 
 /**
  * Evaluate JavaScript in the Excel add-in.
@@ -20,26 +16,7 @@ export async function runMicroCommands(
     const body = await getRequestBody(request);
     const data = JSON.parse(body) as MicroCommandBody;
 
-    const { commands } = data;
-
-    const results = [];
-
-    for (const command of commands) {
-        let result: MicroCommandResult;
-        try {
-            result = await runMicroCommand(command);
-        } catch (error) {
-            result = { success: false, error: JSON.stringify(error) };
-        }
-        results.push(result);
-        if (!result.success) {
-            break;
-        }
-    }
-
-    const resultBody: MicroCommandBodyResult = {
-        results,
-    };
+    const resultBody: MicroCommandBodyResult = await runMicroCommandBody(data);
 
     writeResponseJson(response, resultBody as any);
 }
