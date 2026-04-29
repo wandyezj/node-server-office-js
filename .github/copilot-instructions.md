@@ -12,9 +12,8 @@
 
 ## Build and Test
 - Install dependencies: npm install
-- Build: npm run build
+- Build: npm run compile
 - Start server: npm start
-- Build and start: npm run dev
 - Run tests: npm test
 - Run tests in UI mode: npm run test:ui
 
