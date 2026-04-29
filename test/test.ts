@@ -1,6 +1,10 @@
 import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import * as path from "node:path";
+import {
+    MicroCommandBody,
+    MicroCommandName,
+} from "../src/server/handlers/microCommand/MicroCommand";
 
 test("GET / ping", async ({ request }) => {
     const response = await request.get("/ping");
@@ -156,6 +160,44 @@ test("Run Micro Commands - Open, Eval, Save, Close", async ({ request }) => {
     const body = await response.text();
     const message = JSON.parse(body);
     expect(message.results).toHaveLength(4);
+    for (const result of message.results) {
+        expect(result.success).toBeTruthy();
+    }
+});
+
+test("Run Micro Commands - Open, Eval, Save, Close (PowerShell)", async ({ request }) => {
+    const code = readFileSync(defaultCodeFilePath, "utf-8");
+
+    const microCommandBody: MicroCommandBody = {
+        commands: [
+            {
+                name: MicroCommandName.PowerShellOpenExcelFile,
+                parameters: {
+                    filePath: defaultFilePath,
+                },
+            },
+            {
+                name: MicroCommandName.AddinEval,
+                parameters: {
+                    code,
+                },
+            },
+            {
+                name: MicroCommandName.PowerShellSaveExcelFile,
+                parameters: {
+                    filePath: defaultFileOutPath,
+                },
+            },
+            {
+                name: MicroCommandName.PowerShellCloseExcelFile,
+            },
+        ],
+    };
+    const response = await request.post("/run-micro-commands", { data: microCommandBody });
+    expect(response.ok()).toBeTruthy();
+    const body = await response.text();
+    const message = JSON.parse(body);
+    expect(message.results).toHaveLength(microCommandBody.commands.length);
     for (const result of message.results) {
         expect(result.success).toBeTruthy();
     }

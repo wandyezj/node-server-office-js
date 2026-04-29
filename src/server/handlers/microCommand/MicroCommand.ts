@@ -5,6 +5,9 @@ export enum MicroCommandName {
     OpenExcelFile = "OpenExcelFile",
     CloseExcelFile = "CloseExcelFile",
     SaveExcelFile = "SaveExcelFile",
+    PowerShellOpenExcelFile = "PowerShellOpenExcelFile",
+    PowerShellCloseExcelFile = "PowerShellCloseExcelFile",
+    PowerShellSaveExcelFile = "PowerShellSaveExcelFile",
 }
 
 export interface MicroCommandBaseResult {
@@ -100,6 +103,45 @@ export interface MicroCommandSaveExcelFileResult extends MicroCommandBaseResult 
     success: true;
 }
 
+/**
+ * Open an Excel file with the add-in embedded, using PowerShell to launch Excel hidden.
+ */
+export interface MicroCommandPowerShellOpenExcelFile {
+    name: MicroCommandName.PowerShellOpenExcelFile;
+    parameters: {
+        filePath: string;
+    };
+}
+
+export interface MicroCommandPowerShellOpenExcelFileResult extends MicroCommandBaseResult {
+    success: true;
+}
+
+/**
+ * Close an Excel file by process ID or source file path, using PowerShell (taskkill).
+ */
+export interface MicroCommandPowerShellCloseExcelFile {
+    name: MicroCommandName.PowerShellCloseExcelFile;
+}
+
+export interface MicroCommandPowerShellCloseExcelFileResult extends MicroCommandBaseResult {
+    success: true;
+}
+
+/**
+ * Save the current Excel file contents to the specified file path (PowerShell variant).
+ */
+export interface MicroCommandPowerShellSaveExcelFile {
+    name: MicroCommandName.PowerShellSaveExcelFile;
+    parameters: {
+        filePath: string;
+    };
+}
+
+export interface MicroCommandPowerShellSaveExcelFileResult extends MicroCommandBaseResult {
+    success: true;
+}
+
 // Aggregates
 
 export interface MicroCommandResultError {
@@ -113,7 +155,10 @@ export type MicroCommand =
     | MicroCommandAddinEval
     | MicroCommandOpenExcelFile
     | MicroCommandCloseExcelFile
-    | MicroCommandSaveExcelFile;
+    | MicroCommandSaveExcelFile
+    | MicroCommandPowerShellOpenExcelFile
+    | MicroCommandPowerShellCloseExcelFile
+    | MicroCommandPowerShellSaveExcelFile;
 
 export type MicroCommandResult =
     | MicroCommandResultError
@@ -122,7 +167,10 @@ export type MicroCommandResult =
     | MicroCommandAddinEvalResult
     | MicroCommandOpenExcelFileResult
     | MicroCommandCloseExcelFileResult
-    | MicroCommandSaveExcelFileResult;
+    | MicroCommandSaveExcelFileResult
+    | MicroCommandPowerShellOpenExcelFileResult
+    | MicroCommandPowerShellCloseExcelFileResult
+    | MicroCommandPowerShellSaveExcelFileResult;
 
 export interface MicroCommandBody {
     commands: MicroCommand[];

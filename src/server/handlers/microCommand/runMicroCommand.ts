@@ -6,6 +6,9 @@ import { runMicroCommandCloseExcelFile } from "./runMicroCommandCloseExcelFile";
 import { runMicroCommandConsole } from "./runMicroCommandConsole";
 import { runMicroCommandOpenExcelFile } from "./runMicroCommandOpenExcelFile";
 import { runMicroCommandSaveExcelFile } from "./runMicroCommandSaveExcelFile";
+import { runMicroCommandPowerShellOpenExcelFile } from "./runMicroCommandPowerShellOpenExcelFile";
+import { runMicroCommandPowerShellSaveExcelFile } from "./runMicroCommandPowerShellSaveExcelFile";
+import { runMicroCommandPowerShellCloseExcelFile } from "./runMicroCommandPowerShellCloseExcelFile";
 
 export async function runMicroCommand(command: MicroCommand): Promise<MicroCommandResult> {
     const { name } = command;
@@ -23,6 +26,12 @@ export async function runMicroCommand(command: MicroCommand): Promise<MicroComma
             return await runMicroCommandCloseExcelFile(command);
         case MicroCommandName.SaveExcelFile:
             return await runMicroCommandSaveExcelFile(command);
+        case MicroCommandName.PowerShellOpenExcelFile:
+            return await runMicroCommandPowerShellOpenExcelFile(command);
+        case MicroCommandName.PowerShellSaveExcelFile:
+            return await runMicroCommandPowerShellSaveExcelFile(command);
+        case MicroCommandName.PowerShellCloseExcelFile:
+            return await runMicroCommandPowerShellCloseExcelFile(command);
         default:
             console.warn(`Unknown command: ${name}`);
             return { success: false, error: `Unknown command: ${name}` };
