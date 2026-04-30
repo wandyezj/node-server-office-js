@@ -203,14 +203,11 @@ export type MicroCommandResult =
     | MicroCommandPowerShellSaveActiveWorkbookAsResult
     | MicroCommandForceCloseExcelResult;
 
-
 export type MicroCommandResultWithMetadata = MicroCommandResult & {
     metrics: {
-        durationMs: number
-    }
-}
-
-
+        durationMs: number;
+    };
+};
 
 export interface MicroCommandBody {
     commands: MicroCommand[];
@@ -218,4 +215,7 @@ export interface MicroCommandBody {
 
 export interface MicroCommandBodyResult {
     results: MicroCommandResultWithMetadata[];
+    metrics: {
+        durationMs: number;
+    };
 }
