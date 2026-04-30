@@ -24,12 +24,14 @@ async function handleRequestGeneral(request: http.IncomingMessage, response: htt
     //const test = process.env["TEST"];
     const origin = request.headers.origin;
 
-    globalLog.log(`Request Received: [${requestCount++}]: from ${origin} ${method} ${url}`, {indent:0});
+    globalLog.log(`Request Received: [${requestCount++}]: from ${origin} ${method} ${url}`, {
+        indent: 0,
+    });
     globalLog.indent();
     try {
         await handleRequest(registry, request, response);
     } catch (error) {
-        globalLog.error(`Error handling request: ${error}`, {indent:0});
+        globalLog.error(`Error handling request: ${error}`, { indent: 0 });
         response.writeHead(500, { "Content-Type": "text/plain" });
         response.write("Internal Server Error");
         response.end();
@@ -47,7 +49,7 @@ const serverHttp = http.createServer(handleRequestGeneral);
 //
 const port = process.env.PORT || config.http.port;
 
-globalLog.log(`Server [HTTP] is listening on port ${port}`, {indent:0});
+globalLog.log(`Server [HTTP] is listening on port ${port}`, { indent: 0 });
 
 serverHttp.listen(port);
 
@@ -70,11 +72,10 @@ if (config.https.enabled) {
 
     const portHttps = config.https.port;
 
-    globalLog.log(`Server [HTTPS] is listening on port ${portHttps}`, {indent:0});
+    globalLog.log(`Server [HTTPS] is listening on port ${portHttps}`, { indent: 0 });
 
     serverHttps.listen(portHttps);
 }
-
 
 if (config.socket.enabled) {
     const port = config.socket.port;
@@ -99,5 +100,5 @@ if (config.socket.enabled) {
         });
     });
 
-    globalLog.log(`Server [Socket] running at http://localhost:${port}`, {indent:0});
+    globalLog.log(`Server [Socket] running at http://localhost:${port}`, { indent: 0 });
 }

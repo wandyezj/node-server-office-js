@@ -4,8 +4,10 @@ import { runMicroCommandAddinEval } from "./runMicroCommandAddinEval";
 import { runMicroCommandAddinPing } from "./runMicroCommandAddinPing";
 import { runMicroCommandCloseExcelFile } from "./runMicroCommandCloseExcelFile";
 import { runMicroCommandConsole } from "./runMicroCommandConsole";
+import { runMicroCommandEndLog } from "./runMicroCommandEndLog";
 import { runMicroCommandOpenExcelFile } from "./runMicroCommandOpenExcelFile";
 import { runMicroCommandSaveExcelFile } from "./runMicroCommandSaveExcelFile";
+import { runMicroCommandStartLog } from "./runMicroCommandStartLog";
 import { runMicroCommandPowerShellOpenExcelFile } from "./runMicroCommandPowerShellOpenExcelFile";
 import { runMicroCommandPowerShellSaveExcelFile } from "./runMicroCommandPowerShellSaveExcelFile";
 import { runMicroCommandPowerShellCloseExcelFile } from "./runMicroCommandPowerShellCloseExcelFile";
@@ -18,6 +20,10 @@ export async function runMicroCommand(command: MicroCommand): Promise<MicroComma
     switch (name) {
         case MicroCommandName.Console:
             return runMicroCommandConsole(command);
+        case MicroCommandName.StartLog:
+            return runMicroCommandStartLog(command);
+        case MicroCommandName.EndLog:
+            return runMicroCommandEndLog(command);
         case MicroCommandName.AddinPing:
             return await runMicroCommandAddinPing(command);
         case MicroCommandName.AddinEval:
@@ -39,7 +45,7 @@ export async function runMicroCommand(command: MicroCommand): Promise<MicroComma
         case MicroCommandName.ForceCloseExcel:
             return await runMicroCommandForceCloseExcel(command);
         default:
-            console.warn(`Unknown command: ${name}`);
+            globalLog.error(`Unknown command: ${name}`);
             return { success: false, error: `Unknown command: ${name}` };
     }
 }

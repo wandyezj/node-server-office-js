@@ -1,6 +1,7 @@
 import { MicroCommandConsole, MicroCommandConsoleResult } from "./MicroCommand";
+import { globalLog } from "../../globalLog";
 
 export function runMicroCommandConsole(command: MicroCommandConsole): MicroCommandConsoleResult {
-    console.log(command.parameters.message);
+    globalLog.log(command.parameters.message);
     return { success: true };
 }

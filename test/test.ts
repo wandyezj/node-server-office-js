@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, unlinkSync } from "node:fs";
 import * as path from "node:path";
 import {
     MicroCommandBody,
@@ -28,6 +28,17 @@ const defaultCodeFilePath = path
     .normalize(path.join(rootDirectory, "test", "data", "hello-world-excel.js"))
     .replace(/\\/g, "/");
 
+const defaultLogFilePath = path
+    .normalize(path.join(rootDirectory, "test", "micro-command.log"))
+    .replace(/\\/g, "/");
+
+function getDefaultLogFilePath() {
+    if (existsSync(defaultLogFilePath)) {
+        unlinkSync(defaultLogFilePath);
+    }
+    return defaultLogFilePath;
+}
+
 test("Run Micro Command - Console", async ({ request }) => {
     const response = await request.post("/run-micro-commands", {
         data: {
@@ -45,6 +56,43 @@ test("Run Micro Command - Console", async ({ request }) => {
     const body = await response.text();
     const message = JSON.parse(body);
     expect(message.results[0].success).toBeTruthy();
+});
+
+test("Run Micro Commands - StartLog and EndLog", async ({ request }) => {
+    const logFilePath = getDefaultLogFilePath();
+
+    const response = await request.post("/run-micro-commands", {
+        data: {
+            commands: [
+                {
+                    name: MicroCommandName.StartLog,
+                    parameters: {
+                        filePath: logFilePath,
+                    },
+                },
+                {
+                    name: MicroCommandName.Console,
+                    parameters: {
+                        message: "Hello from the log file!",
+                    },
+                },
+                {
+                    name: MicroCommandName.EndLog,
+                },
+            ],
+        },
+    });
+
+    expect(response.ok()).toBeTruthy();
+    const body = await response.text();
+    const message = JSON.parse(body);
+    expect(message.results).toHaveLength(3);
+    for (const result of message.results) {
+        expect(result.success).toBeTruthy();
+    }
+
+    const logFile = readFileSync(defaultLogFilePath, "utf-8");
+    expect(logFile).toContain("Hello from the log file!");
 });
 
 test("Run Micro Command - Open Excel File", async ({ request }) => {
@@ -166,10 +214,17 @@ test("Run Micro Commands - Open, Eval, Save, Close", async ({ request }) => {
 });
 
 test("Run Micro Commands - Open, Eval, Save, Close (PowerShell)", async ({ request }) => {
+    const logFilePath = getDefaultLogFilePath();
     const code = readFileSync(defaultCodeFilePath, "utf-8");
 
     const microCommandBody: MicroCommandBody = {
         commands: [
+            {
+                name: MicroCommandName.StartLog,
+                parameters: {
+                    filePath: logFilePath,
+                },
+            },
             {
                 name: MicroCommandName.PowerShellOpenExcelFile,
                 parameters: {
@@ -191,6 +246,9 @@ test("Run Micro Commands - Open, Eval, Save, Close (PowerShell)", async ({ reque
             {
                 name: MicroCommandName.PowerShellCloseExcelFile,
             },
+            {
+                name: MicroCommandName.EndLog,
+            },
         ],
     };
     const response = await request.post("/run-micro-commands", { data: microCommandBody });
@@ -204,9 +262,16 @@ test("Run Micro Commands - Open, Eval, Save, Close (PowerShell)", async ({ reque
 });
 
 test("Run Micro Commands - Open, Eval, SaveAs, Close", async ({ request }) => {
+    const logFilePath = getDefaultLogFilePath();
     const code = readFileSync(defaultCodeFilePath, "utf-8");
     const microCommandBody: MicroCommandBody = {
         commands: [
+            {
+                name: MicroCommandName.StartLog,
+                parameters: {
+                    filePath: logFilePath,
+                },
+            },
             {
                 name: MicroCommandName.ForceCloseExcel,
             },
@@ -233,6 +298,9 @@ test("Run Micro Commands - Open, Eval, SaveAs, Close", async ({ request }) => {
                 parameters: {
                     filePath: defaultFilePath,
                 },
+            },
+            {
+                name: MicroCommandName.EndLog,
             },
         ],
     };

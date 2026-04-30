@@ -1,5 +1,7 @@
 export enum MicroCommandName {
     Console = "Console",
+    StartLog = "StartLog",
+    EndLog = "EndLog",
     AddinPing = "AddinPing",
     AddinEval = "AddinEval",
     OpenExcelFile = "OpenExcelFile",
@@ -27,6 +29,31 @@ export interface MicroCommandConsole {
 }
 
 export interface MicroCommandConsoleResult extends MicroCommandBaseResult {
+    success: true;
+}
+
+/**
+ * Start writing global logger output to the specified file path.
+ */
+export interface MicroCommandStartLog {
+    name: MicroCommandName.StartLog;
+    parameters: {
+        filePath: string;
+    };
+}
+
+export interface MicroCommandStartLogResult extends MicroCommandBaseResult {
+    success: true;
+}
+
+/**
+ * Stop writing global logger output to a file.
+ */
+export interface MicroCommandEndLog {
+    name: MicroCommandName.EndLog;
+}
+
+export interface MicroCommandEndLogResult extends MicroCommandBaseResult {
     success: true;
 }
 
@@ -120,7 +147,7 @@ export interface MicroCommandPowerShellOpenExcelFileResult extends MicroCommandB
 }
 
 /**
- * Close an Excel file by process ID or source file path, using PowerShell (taskkill).
+ * Close an Excel file by process ID or source file path, using PowerShell.
  */
 export interface MicroCommandPowerShellCloseExcelFile {
     name: MicroCommandName.PowerShellCloseExcelFile;
@@ -178,6 +205,8 @@ export interface MicroCommandResultError {
 
 export type MicroCommand =
     | MicroCommandConsole
+    | MicroCommandStartLog
+    | MicroCommandEndLog
     | MicroCommandAddinPing
     | MicroCommandAddinEval
     | MicroCommandOpenExcelFile
@@ -192,6 +221,8 @@ export type MicroCommand =
 export type MicroCommandResult =
     | MicroCommandResultError
     | MicroCommandConsoleResult
+    | MicroCommandStartLogResult
+    | MicroCommandEndLogResult
     | MicroCommandAddinPingResult
     | MicroCommandAddinEvalResult
     | MicroCommandOpenExcelFileResult

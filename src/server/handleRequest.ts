@@ -15,7 +15,7 @@ export async function handleRequest(
 ) {
     for (const [matcher, handler] of registry) {
         if (matcher(request)) {
-            globalLog.log(`Request Matched: ${request.method} ${request.url}`, {indent:0});
+            globalLog.log(`Request Matched: ${request.method} ${request.url}`, { indent: 0 });
             await handler(request, response);
             return; // Stop processing after the first match
         }

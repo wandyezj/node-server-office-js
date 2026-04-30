@@ -1,3 +1,4 @@
 test-*.xlsx
 *.zip
 ~*
+micro-command.log
