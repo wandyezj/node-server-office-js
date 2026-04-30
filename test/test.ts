@@ -264,4 +264,6 @@ test("Run Micro Commands - Open, Eval, SaveAs, Close", async ({ request }) => {
     for (const result of message.results) {
         expect(result.success).toBeTruthy();
     }
+
+    console.log(body);
 });
