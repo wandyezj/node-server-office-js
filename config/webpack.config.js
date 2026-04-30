@@ -59,21 +59,43 @@ class CreateFilesPlugin {
         });
     }
 }
-const serverConfigJson = require("../src/server/config.json")
+
+class DeleteAssetsPlugin {
+    /**
+     * @param {string[]} assetNames
+     */
+    constructor(assetNames) {
+        this.assetNames = assetNames;
+    }
+
+    apply(compiler) {
+        compiler.hooks.thisCompilation.tap("DeleteAssetsPlugin", (compilation) => {
+            compilation.hooks.processAssets.tap(
+                {
+                    name: "DeleteAssetsPlugin",
+                    stage: Compilation.PROCESS_ASSETS_STAGE_SUMMARIZE,
+                },
+                () => {
+                    for (const assetName of this.assetNames) {
+                        if (compilation.getAsset(assetName)) {
+                            compilation.deleteAsset(assetName);
+                        }
+                    }
+                },
+            );
+        });
+    }
+}
+
+const serverConfigJson = require("../src/server/config.json");
 
 module.exports = async (env, options) => {
     const isDevelopment = options.mode === "development";
 
     const outputPath = path.resolve(__dirname, "..", "dist");
 
-    const cleanConfig = {
-        output: {
-            path: outputPath,
-        },
-        plugins: [new CleanWebpackPlugin()],
-    };
-
     const serverConfig = {
+        name: "server",
         target: "node",
         devtool: isDevelopment ? "inline-source-map" : undefined,
         performance: { hints: false },
@@ -94,9 +116,7 @@ module.exports = async (env, options) => {
             rules: [{ test: /\.(ts|tsx)$/, loader: "ts-loader" }],
         },
         watch: isDevelopment,
-        plugins: [
-             
-        ],
+        plugins: [new CleanWebpackPlugin()],
     };
 
     if (serverConfigJson.https.enabled) {
@@ -110,10 +130,13 @@ module.exports = async (env, options) => {
                     ["key.pem", key],
                     ["cert.pem", cert],
                 ];
-            }))
+            }),
+        );
     }
 
     const addinConfig = {
+        name: "addin",
+        dependencies: ["server"],
         target: "web",
         devtool: isDevelopment ? "inline-source-map" : undefined,
         performance: { hints: false },
@@ -133,14 +156,23 @@ module.exports = async (env, options) => {
                         from: path.resolve(__dirname, "..", "src", "addin", "manifest.xml"),
                         to: "manifest.xml",
                         transform: (content) => {
-                            return content.toString().replaceAll(/localhost:\d+/g, `localhost:${serverConfigJson.http.port}`);
+                            return content
+                                .toString()
+                                .replaceAll(
+                                    /localhost:\d+/g,
+                                    `localhost:${serverConfigJson.http.port}`,
+                                );
                         },
                     },
-                    {
-                        from: "*.png",
-                        to: "[name][ext]",
-                        context: path.resolve(__dirname, "..", "src", "addin"),
-                    },
+                    ...(serverConfigJson.test
+                        ? [
+                              {
+                                  from: "*.png",
+                                  to: "[name][ext]",
+                                  context: path.resolve(__dirname, "..", "src", "addin"),
+                              },
+                          ]
+                        : []),
                 ],
             }),
             new HtmlWebpackPlugin({
@@ -155,6 +187,7 @@ module.exports = async (env, options) => {
                             return `<script>${source}</script>`;
                         })
                         .join("\n    ");
+
                     return `<!DOCTYPE html>
                         <html>
                         <head>
@@ -168,9 +201,11 @@ module.exports = async (env, options) => {
                         </html>`;
                 },
             }),
+            // No need to output the addin bundle since it's embedded in the HTML
+            new DeleteAssetsPlugin(["addin.bundle.js"]),
         ],
         watch: isDevelopment,
     };
 
-    return [cleanConfig, addinConfig, serverConfig];
+    return [addinConfig, serverConfig];
 };

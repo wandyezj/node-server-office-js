@@ -1,4 +1,5 @@
 {
+    "test": false,
     "http": {
         "port": 8100
     },

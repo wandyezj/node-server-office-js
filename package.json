@@ -2,9 +2,10 @@
     "name": "node-server-office-js",
     "version": "0.0.0",
     "description": "Node server to execute office.js on an Office Document.",
-    "main": "index.js",
+    "main": "index.bundle.js",
     "private": true,
     "scripts": {
+        "build": "npm run style-check && npm run clean && npm run compile",
         "style": "prettier --config ./config/prettier.json --write \"@(src|test)/**/*.@(ts|tsx|js|md|html|css|json)\"",
         "style-check": "prettier --config ./config/prettier.json --check \"@(src|test)/**/*.@(ts|tsx|js|md|html|css|json)\"",
         "ping": "ts-node ./scripts/ping.ts",
