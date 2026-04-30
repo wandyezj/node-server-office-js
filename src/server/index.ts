@@ -1,11 +1,15 @@
-import * as http from "http";
+import { globalLog } from "./globalLog";
 import config from "./config.json";
+import * as http from "http";
 import { handleRequest } from "./handleRequest";
+import { WebSocketServer } from "ws";
+import { registry } from "./registry";
+import { globalWebsocket } from "./globalWebsocket";
 
-console.log("Starting server...");
+globalLog.log("Starting server...");
 
 function gracefulShutdown() {
-    console.log("Shutdown signal received. Closing server...");
+    globalLog.log("Shutdown signal received. Closing server...");
     process.exit(0);
 }
 
@@ -20,12 +24,12 @@ async function handleRequestGeneral(request: http.IncomingMessage, response: htt
     //const test = process.env["TEST"];
     const origin = request.headers.origin;
 
-    globalLog.log(`Request Received: [${requestCount++}]: from ${origin} ${method} ${url}`);
+    globalLog.log(`Request Received: [${requestCount++}]: from ${origin} ${method} ${url}`, {indent:0});
     globalLog.indent();
     try {
         await handleRequest(registry, request, response);
     } catch (error) {
-        console.error("Error handling request:", error);
+        globalLog.error(`Error handling request: ${error}`, {indent:0});
         response.writeHead(500, { "Content-Type": "text/plain" });
         response.write("Internal Server Error");
         response.end();
@@ -43,7 +47,7 @@ const serverHttp = http.createServer(handleRequestGeneral);
 //
 const port = process.env.PORT || config.http.port;
 
-console.log(`Server [HTTP] is listening on port ${port}`);
+globalLog.log(`Server [HTTP] is listening on port ${port}`, {indent:0});
 
 serverHttp.listen(port);
 
@@ -66,15 +70,12 @@ if (config.https.enabled) {
 
     const portHttps = config.https.port;
 
-    console.log(`Server [HTTPS] is listening on port ${portHttps}`);
+    globalLog.log(`Server [HTTPS] is listening on port ${portHttps}`, {indent:0});
 
     serverHttps.listen(portHttps);
 }
 
-import { WebSocketServer } from "ws";
-import { registry } from "./registry";
-import { globalWebsocket } from "./globalWebsocket";
-import { globalLog } from "./globalLog";
+
 if (config.socket.enabled) {
     const port = config.socket.port;
     const serverWebsocket = new WebSocketServer({ port });
@@ -96,9 +97,7 @@ if (config.socket.enabled) {
                 ws.send(data);
             }
         });
-
-        ws.send("something");
     });
 
-    console.log(`Server [Socket] running at http://localhost:${port}`);
+    globalLog.log(`Server [Socket] running at http://localhost:${port}`, {indent:0});
 }

@@ -10,7 +10,7 @@ function applyIndent(message: string, indent: number) {
     const indentStr = getIndent(indent);
     return message
         .split("\n")
-        .map((line) => indentStr + line)
+        .map((line) => line.trim() === "" ? "" : indentStr + line)
         .join("\n");
 }
 

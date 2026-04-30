@@ -59,6 +59,7 @@ class CreateFilesPlugin {
         });
     }
 }
+const serverConfigJson = require("../src/server/config.json")
 
 module.exports = async (env, options) => {
     const isDevelopment = options.mode === "development";
@@ -94,6 +95,12 @@ module.exports = async (env, options) => {
         },
         watch: isDevelopment,
         plugins: [
+             
+        ],
+    };
+
+    if (serverConfigJson.https.enabled) {
+        serverConfig.plugins.push(
             new CreateFilesPlugin(async () => {
                 const { ca, key, cert } = await devCerts.getHttpsServerOptions();
 
@@ -103,9 +110,8 @@ module.exports = async (env, options) => {
                     ["key.pem", key],
                     ["cert.pem", cert],
                 ];
-            }),
-        ],
-    };
+            }))
+    }
 
     const addinConfig = {
         target: "web",
@@ -126,6 +132,9 @@ module.exports = async (env, options) => {
                     {
                         from: path.resolve(__dirname, "..", "src", "addin", "manifest.xml"),
                         to: "manifest.xml",
+                        transform: (content) => {
+                            return content.toString().replaceAll(/localhost:\d+/g, `localhost:${serverConfigJson.http.port}`);
+                        },
                     },
                     {
                         from: "*.png",

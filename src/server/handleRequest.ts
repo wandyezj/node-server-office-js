@@ -1,4 +1,5 @@
 import * as http from "http";
+import { globalLog } from "./globalLog";
 
 export type FunctionRequestMatcher = (request: http.IncomingMessage) => boolean;
 
@@ -14,7 +15,7 @@ export async function handleRequest(
 ) {
     for (const [matcher, handler] of registry) {
         if (matcher(request)) {
-            console.log(`Request Matched: ${request.method} ${request.url}`);
+            globalLog.log(`Request Matched: ${request.method} ${request.url}`, {indent:0});
             await handler(request, response);
             return; // Stop processing after the first match
         }

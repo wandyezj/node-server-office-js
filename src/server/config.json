@@ -3,7 +3,7 @@
         "port": 8100
     },
     "https": {
-        "enabled": true,
+        "enabled": false,
         "port": 8101
     },
     "socket": {
