@@ -22,6 +22,8 @@ async function evalCode(
     let error: string | undefined;
     let result: any;
     try {
+        // This is the key functionality to allow evaluating arbitrary code.
+        /* eslint-disable no-eval */
         result = await eval.call(globalThis, code);
     } catch (err) {
         error = (err as Error).message;
