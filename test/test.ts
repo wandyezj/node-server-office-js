@@ -1,8 +1,10 @@
-import { expect, test } from "@playwright/test";
+import { APIRequestContext, expect, test } from "@playwright/test";
 import { existsSync, readFileSync, unlinkSync } from "node:fs";
 import * as path from "node:path";
 import {
+    MicroCommandAddinEvalResult,
     MicroCommandBody,
+    MicroCommandBodyResult,
     MicroCommandName,
 } from "../src/server/handlers/microCommand/MicroCommand";
 
@@ -24,19 +26,28 @@ const defaultFileOutPath = path
     .normalize(path.join(rootDirectory, "test", "test-out.xlsx"))
     .replace(/\\/g, "/");
 
-const defaultCodeFilePath = path
-    .normalize(path.join(rootDirectory, "test", "data", "hello-world-excel.js"))
+const defaultCodeFileDirectory = path
+    .normalize(path.join(rootDirectory, "test", "data"))
     .replace(/\\/g, "/");
 
-const defaultLogFilePath = path
-    .normalize(path.join(rootDirectory, "test", "micro-command.log"))
+function getCodeFile(fileName: string) {
+    return path.normalize(path.join(defaultCodeFileDirectory, fileName)).replace(/\\/g, "/");
+}
+
+const defaultCodeFilePath = getCodeFile("hello-world-excel.js");
+
+const defaultLogFileDirectory = path
+    .normalize(path.join(rootDirectory, "test"))
     .replace(/\\/g, "/");
 
-function getDefaultLogFilePath() {
-    if (existsSync(defaultLogFilePath)) {
-        unlinkSync(defaultLogFilePath);
+function getDefaultLogFilePath(fileName: string = "micro-command.log") {
+    const logFilePath = path
+        .normalize(path.join(defaultLogFileDirectory, fileName))
+        .replace(/\\/g, "/");
+    if (existsSync(logFilePath)) {
+        unlinkSync(logFilePath);
     }
-    return defaultLogFilePath;
+    return logFilePath;
 }
 
 test("Run Micro Command - Console", async ({ request }) => {
@@ -261,6 +272,97 @@ test("Run Micro Commands - Open, Eval, Save, Close (PowerShell)", async ({ reque
     }
 });
 
+async function runStandardOpen(request: APIRequestContext) {
+    const logFilePath = getDefaultLogFilePath("micro-command-open.log");
+    const microCommandBody: MicroCommandBody = {
+        commands: [
+            {
+                name: MicroCommandName.StartLog,
+                parameters: {
+                    filePath: logFilePath,
+                },
+            },
+            {
+                name: MicroCommandName.ForceCloseExcel,
+            },
+            {
+                name: MicroCommandName.OpenExcelFile,
+                parameters: {
+                    filePath: defaultFilePath,
+                },
+            },
+            {
+                name: MicroCommandName.EndLog,
+            },
+        ],
+    };
+    const response = await request.post("/run-micro-commands", { data: microCommandBody });
+    expect(response.ok()).toBeTruthy();
+    const body = await response.text();
+    const message = JSON.parse(body);
+    expect(message.results).toHaveLength(microCommandBody.commands.length);
+    for (const result of message.results) {
+        expect(result.success).toBeTruthy();
+    }
+}
+
+async function runStandardClose(request: APIRequestContext) {
+    const logFilePath = getDefaultLogFilePath("micro-command-close.log");
+    const microCommandBody: MicroCommandBody = {
+        commands: [
+            {
+                name: MicroCommandName.StartLog,
+                parameters: {
+                    filePath: logFilePath,
+                },
+            },
+            {
+                name: MicroCommandName.SaveExcelFile,
+                parameters: {
+                    filePath: defaultFileOutPath,
+                },
+            },
+            {
+                name: MicroCommandName.CloseExcelFile,
+                parameters: {
+                    filePath: defaultFilePath,
+                },
+            },
+            {
+                name: MicroCommandName.EndLog,
+            },
+        ],
+    };
+    const response = await request.post("/run-micro-commands", { data: microCommandBody });
+    expect(response.ok()).toBeTruthy();
+    const body = await response.text();
+    const message = JSON.parse(body);
+    expect(message.results).toHaveLength(microCommandBody.commands.length);
+    for (const result of message.results) {
+        expect(result.success).toBeTruthy();
+    }
+}
+
+async function runStandardEval(request: APIRequestContext, code: string) {
+    const logFilePath = getDefaultLogFilePath();
+    const microCommandBody: MicroCommandBody = {
+        commands: [
+            {
+                name: MicroCommandName.AddinEval,
+                parameters: {
+                    code,
+                },
+            },
+        ],
+    };
+
+    const response = await request.post("/run-micro-commands", {
+        data: microCommandBody,
+    });
+
+    return response;
+}
+
 test("Run Micro Commands - Open, Eval, SaveAs, Close", async ({ request }) => {
     const logFilePath = getDefaultLogFilePath();
     const code = readFileSync(defaultCodeFilePath, "utf-8");
@@ -334,4 +436,16 @@ test("Run Micro Commands - Open, Eval, SaveAs, Close", async ({ request }) => {
     }
 
     console.log(body);
+});
+
+test("Run Standard Eval - invalid.js", async ({ request }) => {
+    const code = getCodeFile("invalid.js");
+    await runStandardOpen(request);
+    const result = await runStandardEval(request, code);
+    await runStandardClose(request);
+    const jsonBody = await result.text();
+    console.log(jsonBody);
+    const json = JSON.parse(jsonBody) as MicroCommandBodyResult;
+    const evalResult = json.results[0] as MicroCommandAddinEvalResult;
+    expect(evalResult.values.error).toContain("Invalid regular expression flags");
 });
