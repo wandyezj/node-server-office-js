@@ -20,7 +20,7 @@ async function evalCode(
     };
 
     let error: string | undefined;
-    let result: any;
+    let result: any = undefined;
     try {
         // This is the key functionality to allow evaluating arbitrary code.
         /* eslint-disable no-eval */
