@@ -23,6 +23,7 @@ export async function runMicroCommandBody(body: MicroCommandBody) {
         try {
             result = await runMicroCommand(command);
         } catch (error) {
+            console.error(error);
             globalLog.error(`μ Micro Command Error:\n${JSON.stringify(error)}`, {
                 indentAdjust: 1,
             });
