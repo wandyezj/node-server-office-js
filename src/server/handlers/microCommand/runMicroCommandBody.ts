@@ -31,7 +31,11 @@ export async function runMicroCommandBody(body: MicroCommandBody) {
         }
 
         const durationMs = Date.now() - startTime;
-        results.push({ ...result, metrics: { durationMs } });
+        const finalResult: MicroCommandResultWithMetadata = { ...result, metrics: { durationMs } };
+        if (command.id) {
+            finalResult.id = command.id;
+        }
+        results.push(finalResult);
 
         // Stop executing on the first MicroCommand failure.
         if (!result.success) {
