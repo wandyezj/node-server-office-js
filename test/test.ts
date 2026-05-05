@@ -102,7 +102,7 @@ test("Run Micro Commands - StartLog and EndLog", async ({ request }) => {
         expect(result.success).toBeTruthy();
     }
 
-    const logFile = readFileSync(defaultLogFilePath, "utf-8");
+    const logFile = readFileSync(logFilePath, "utf-8");
     expect(logFile).toContain("Hello from the log file!");
 });
 
@@ -439,7 +439,10 @@ test("Run Micro Commands - Open, Eval, SaveAs, Close", async ({ request }) => {
 });
 
 test("Run Standard Eval - invalid.js", async ({ request }) => {
-    const code = getCodeFile("invalid.js");
+    const code = `console.log("Syntax Error");
+function test() {
+    console.log("This is a test function")
+`;
     await runStandardOpen(request);
     const result = await runStandardEval(request, code);
     await runStandardClose(request);
