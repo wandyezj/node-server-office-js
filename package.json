@@ -17,6 +17,7 @@
         "watch-server": "node --watch ./dist/index.bundle.js",
         "start": "npm run watch-compile & npm run watch-server",
         "read-manifest-registry": "ts-node ./scripts/read-manifest-registry.ts",
+        "server-version": "node.exe ./dist/index.bundle.js --version",
         "excel-open": "npm run ping -- --open-excel",
         "excel-ping": "npm run ping -- --addin-ping",
         "excel-eval": "npm run ping -- --addin-eval",

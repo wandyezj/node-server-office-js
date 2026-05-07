@@ -1,4 +1,5 @@
 import { ChildProcess, spawn } from "node:child_process";
+import { globalLog } from "./globalLog";
 
 export type ProcessMetadata = {
     tag?: string;
@@ -72,7 +73,13 @@ class ProcessRegistry {
      * @returns pid of the process
      */
     spawn(path: string, args: string[], metadata: ProcessMetadata = {}) {
-        const childProcess = spawn(path, args, { stdio: "ignore" });
+        const childProcess = spawn(path, args, { stdio: "pipe" });
+        childProcess.stdout?.on("data", (data) => {
+            globalLog.log(`[PID ${childProcess.pid}] stdout: ${data}`);
+        });
+        childProcess.stderr?.on("data", (data) => {
+            globalLog.log(`[PID ${childProcess.pid}] stderr: ${data}`);
+        });
         const id = this.add(childProcess, metadata);
         return id;
     }

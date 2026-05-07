@@ -5,6 +5,26 @@ import { handleRequest } from "./handleRequest";
 import { WebSocketServer } from "ws";
 import { registry } from "./registry";
 import { globalWebsocket } from "./globalWebsocket";
+import * as https from "https";
+import { parseArgs } from "node:util";
+import packageJson from "../../package.json";
+import * as fs from "node:fs";
+import * as path from "node:path";
+
+const { values } = parseArgs({
+    options: {
+        version: {
+            type: "boolean",
+            short: "v",
+        },
+    },
+    strict: false,
+});
+
+if (values.version) {
+    console.log(packageJson.version);
+    process.exit(0);
+}
 
 globalLog.log("Starting server...");
 
@@ -56,9 +76,6 @@ serverHttp.listen(port);
 //
 // Server Setup - https
 //
-import * as fs from "node:fs";
-import * as https from "https";
-import * as path from "path";
 
 if (config.https.enabled) {
     // SSL/TLS Credentials

@@ -14,14 +14,22 @@ export enum MicroCommandName {
     ForceCloseExcel = "ForceCloseExcel",
 }
 
+export interface MicroCommandBase {
+    /**
+     * Mirrored in MicroCommandBaseResult
+     */
+    id?: string;
+}
+
 export interface MicroCommandBaseResult {
+    id?: string;
     success: boolean;
 }
 
 /**
  * Output the specified message to the console.
  */
-export interface MicroCommandConsole {
+export interface MicroCommandConsole extends MicroCommandBase {
     name: MicroCommandName.Console;
     parameters: {
         message: string;
@@ -35,7 +43,7 @@ export interface MicroCommandConsoleResult extends MicroCommandBaseResult {
 /**
  * Start writing global logger output to the specified file path.
  */
-export interface MicroCommandStartLog {
+export interface MicroCommandStartLog extends MicroCommandBase {
     name: MicroCommandName.StartLog;
     parameters: {
         filePath: string;
@@ -49,7 +57,7 @@ export interface MicroCommandStartLogResult extends MicroCommandBaseResult {
 /**
  * Stop writing global logger output to a file.
  */
-export interface MicroCommandEndLog {
+export interface MicroCommandEndLog extends MicroCommandBase {
     name: MicroCommandName.EndLog;
 }
 
@@ -57,7 +65,7 @@ export interface MicroCommandEndLogResult extends MicroCommandBaseResult {
     success: true;
 }
 
-export interface MicroCommandAddinPing {
+export interface MicroCommandAddinPing extends MicroCommandBase {
     name: MicroCommandName.AddinPing;
 }
 
@@ -68,7 +76,7 @@ export interface MicroCommandAddinPingResult extends MicroCommandBaseResult {
 /**
  * Evaluate JavaScript in the Excel add-in.
  */
-export interface MicroCommandAddinEval {
+export interface MicroCommandAddinEval extends MicroCommandBase {
     name: MicroCommandName.AddinEval;
     parameters: {
         code: string;
@@ -91,7 +99,7 @@ export interface MicroCommandAddinEvalResult extends MicroCommandBaseResult {
 /**
  * Open an Excel file with the add-in embedded.
  */
-export interface MicroCommandOpenExcelFile {
+export interface MicroCommandOpenExcelFile extends MicroCommandBase {
     name: MicroCommandName.OpenExcelFile;
     parameters: {
         filePath: string;
@@ -100,13 +108,15 @@ export interface MicroCommandOpenExcelFile {
 
 export interface MicroCommandOpenExcelFileResult extends MicroCommandBaseResult {
     success: true;
-    id: number | undefined;
+    values: {
+        id: number | undefined;
+    };
 }
 
 /**
  * Close an Excel file by process ID or source file path.
  */
-export interface MicroCommandCloseExcelFile {
+export interface MicroCommandCloseExcelFile extends MicroCommandBase {
     name: MicroCommandName.CloseExcelFile;
     parameters: {
         id?: number;
@@ -121,7 +131,7 @@ export interface MicroCommandCloseExcelFileResult extends MicroCommandBaseResult
 /**
  * Save the current Excel file contents to the specified file path.
  */
-export interface MicroCommandSaveExcelFile {
+export interface MicroCommandSaveExcelFile extends MicroCommandBase {
     name: MicroCommandName.SaveExcelFile;
     parameters: {
         filePath: string;
@@ -135,7 +145,7 @@ export interface MicroCommandSaveExcelFileResult extends MicroCommandBaseResult 
 /**
  * Open an Excel file with the add-in embedded, using PowerShell to launch Excel hidden.
  */
-export interface MicroCommandPowerShellOpenExcelFile {
+export interface MicroCommandPowerShellOpenExcelFile extends MicroCommandBase {
     name: MicroCommandName.PowerShellOpenExcelFile;
     parameters: {
         filePath: string;
@@ -149,7 +159,7 @@ export interface MicroCommandPowerShellOpenExcelFileResult extends MicroCommandB
 /**
  * Close an Excel file by process ID or source file path, using PowerShell.
  */
-export interface MicroCommandPowerShellCloseExcelFile {
+export interface MicroCommandPowerShellCloseExcelFile extends MicroCommandBase {
     name: MicroCommandName.PowerShellCloseExcelFile;
 }
 
@@ -160,7 +170,7 @@ export interface MicroCommandPowerShellCloseExcelFileResult extends MicroCommand
 /**
  * Save the current Excel file contents to the specified file path (PowerShell variant).
  */
-export interface MicroCommandPowerShellSaveExcelFile {
+export interface MicroCommandPowerShellSaveExcelFile extends MicroCommandBase {
     name: MicroCommandName.PowerShellSaveExcelFile;
     parameters: {
         filePath: string;
@@ -174,7 +184,7 @@ export interface MicroCommandPowerShellSaveExcelFileResult extends MicroCommandB
 /**
  * Save the active Excel workbook to a new location using PowerShell.
  */
-export interface MicroCommandPowerShellSaveActiveWorkbookAs {
+export interface MicroCommandPowerShellSaveActiveWorkbookAs extends MicroCommandBase {
     name: MicroCommandName.PowerShellSaveActiveWorkbookAs;
     parameters: {
         filePath: string;
@@ -188,7 +198,7 @@ export interface MicroCommandPowerShellSaveActiveWorkbookAsResult extends MicroC
 /**
  * Force stop all Excel instances running on the machine using PowerShell.
  */
-export interface MicroCommandForceCloseExcel {
+export interface MicroCommandForceCloseExcel extends MicroCommandBase {
     name: MicroCommandName.ForceCloseExcel;
 }
 
@@ -198,7 +208,7 @@ export interface MicroCommandForceCloseExcelResult extends MicroCommandBaseResul
 
 // Aggregates
 
-export interface MicroCommandResultError {
+export interface MicroCommandResultError extends MicroCommandBaseResult {
     success: false;
     error: string;
 }
