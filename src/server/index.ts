@@ -17,6 +17,10 @@ const { values } = parseArgs({
             type: "boolean",
             short: "v",
         },
+        port: {
+            type: "string",
+            short: "p",
+        },
     },
     strict: false,
 });
@@ -67,7 +71,7 @@ const serverHttp = http.createServer(handleRequestGeneral);
 //
 // Start Listening on port
 //
-const port = process.env.PORT || config.http.port;
+const port = values.port ?? process.env.PORT ?? config.http.port;
 
 globalLog.log(`Server [HTTP] is listening on port ${port}`, { indent: 0 });
 
