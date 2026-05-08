@@ -7,7 +7,7 @@ import {
 } from "./MicroCommand";
 import { runMicroCommand } from "./runMicroCommand";
 
-export async function runMicroCommandBody(body: MicroCommandBody) {
+export async function runMicroCommandBody(body: MicroCommandBody): Promise<MicroCommandBodyResult> {
     const { commands } = body;
     const results: MicroCommandResultWithMetadata[] = [];
 

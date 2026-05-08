@@ -26,27 +26,27 @@ export async function runMicroCommand(command: MicroCommand): Promise<MicroComma
         case MicroCommandName.EndLog:
             return runMicroCommandEndLog(command);
         case MicroCommandName.AddinPing:
-            return await runMicroCommandAddinPing(command);
+            return runMicroCommandAddinPing(command);
         case MicroCommandName.AddinEval:
-            return await runMicroCommandAddinEval(command);
+            return runMicroCommandAddinEval(command);
         case MicroCommandName.OpenExcelFile:
-            return await runMicroCommandOpenExcelFile(command);
+            return runMicroCommandOpenExcelFile(command);
         case MicroCommandName.CloseExcelFile:
-            return await runMicroCommandCloseExcelFile(command);
+            return runMicroCommandCloseExcelFile(command);
         case MicroCommandName.SaveExcelFile:
-            return await runMicroCommandSaveExcelFile(command);
+            return runMicroCommandSaveExcelFile(command);
         case MicroCommandName.PowerShellOpenExcelFile:
-            return await runMicroCommandPowerShellOpenExcelFile(command);
+            return runMicroCommandPowerShellOpenExcelFile(command);
         case MicroCommandName.PowerShellSaveExcelFile:
-            return await runMicroCommandPowerShellSaveExcelFile(command);
+            return runMicroCommandPowerShellSaveExcelFile(command);
         case MicroCommandName.PowerShellCloseExcelFile:
-            return await runMicroCommandPowerShellCloseExcelFile(command);
+            return runMicroCommandPowerShellCloseExcelFile(command);
         case MicroCommandName.PowerShellSaveActiveWorkbookAs:
-            return await runMicroCommandPowerShellSaveActiveWorkbookAs(command);
+            return runMicroCommandPowerShellSaveActiveWorkbookAs(command);
         case MicroCommandName.ForceCloseExcel:
-            return await runMicroCommandForceCloseExcel(command);
+            return runMicroCommandForceCloseExcel(command);
         case MicroCommandName.ReadFileContents:
-            return await runMicroCommandReadFileContents(command);
+            return runMicroCommandReadFileContents(command);
         default:
             globalLog.error(`Unknown command: ${name}`);
             return { success: false, error: `Unknown command: ${name}` };
