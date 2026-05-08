@@ -1,5 +1,5 @@
 import { APIRequestContext, expect, test } from "@playwright/test";
-import { existsSync, readFileSync, unlinkSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, unlinkSync } from "node:fs";
 import * as path from "node:path";
 import {
     MicroCommandAddinEvalResult,
@@ -23,12 +23,16 @@ const defaultFilePath = path
     .normalize(path.join(rootDirectory, "test", "test.xlsx"))
     .replace(/\\/g, "/");
 
-const defaultFileOutPath = path
-    .normalize(path.join(rootDirectory, "test", "test-out.xlsx"))
-    .replace(/\\/g, "/");
-
 const defaultCodeFileDirectory = path
     .normalize(path.join(rootDirectory, "test", "data"))
+    .replace(/\\/g, "/");
+
+const defaultPathOutDirectory = path
+    .normalize(path.join(rootDirectory, "test", "out"))
+    .replace(/\\/g, "/");
+
+const defaultFileOutPath = path
+    .normalize(path.join(defaultPathOutDirectory, "test-out.xlsx"))
     .replace(/\\/g, "/");
 
 function getCodeFile(fileName: string) {
@@ -37,9 +41,7 @@ function getCodeFile(fileName: string) {
 
 const defaultCodeFilePath = getCodeFile("hello-world-excel.js");
 
-const defaultLogFileDirectory = path
-    .normalize(path.join(rootDirectory, "test"))
-    .replace(/\\/g, "/");
+const defaultLogFileDirectory = defaultPathOutDirectory;
 
 function getDefaultLogFilePath(fileName: string = "micro-command.log") {
     const logFilePath = path
@@ -49,6 +51,13 @@ function getDefaultLogFilePath(fileName: string = "micro-command.log") {
         unlinkSync(logFilePath);
     }
     return logFilePath;
+}
+
+function cleanOutDirectory() {
+    if (existsSync(defaultFileOutPath)) {
+        unlinkSync(defaultFileOutPath);
+    }
+    mkdirSync(defaultPathOutDirectory, { recursive: true });
 }
 
 test("Run Micro Command - Console", async ({ request }) => {
@@ -185,6 +194,7 @@ test("Run Micro Command - Close Excel File", async ({ request }) => {
 });
 
 test("Run Micro Commands - Open, Eval, Save, Close", async ({ request }) => {
+    cleanOutDirectory();
     const code = readFileSync(defaultCodeFilePath, "utf-8");
     const response = await request.post("/run-micro-commands", {
         data: {
@@ -226,6 +236,7 @@ test("Run Micro Commands - Open, Eval, Save, Close", async ({ request }) => {
 });
 
 test("Run Micro Commands - Open, Eval, Save, Close (PowerShell)", async ({ request }) => {
+    cleanOutDirectory();
     const logFilePath = getDefaultLogFilePath();
     const code = readFileSync(defaultCodeFilePath, "utf-8");
 
@@ -236,6 +247,9 @@ test("Run Micro Commands - Open, Eval, Save, Close (PowerShell)", async ({ reque
                 parameters: {
                     filePath: logFilePath,
                 },
+            },
+            {
+                name: MicroCommandName.ForceCloseExcel,
             },
             {
                 name: MicroCommandName.PowerShellOpenExcelFile,
@@ -365,6 +379,7 @@ async function runStandardEval(request: APIRequestContext, code: string) {
 }
 
 test("Run Micro Commands - Open, Eval, SaveAs, Close", async ({ request }) => {
+    cleanOutDirectory();
     const logFilePath = getDefaultLogFilePath();
     const code = readFileSync(defaultCodeFilePath, "utf-8");
     const microCommandBody: MicroCommandBody = {
@@ -391,7 +406,7 @@ test("Run Micro Commands - Open, Eval, SaveAs, Close", async ({ request }) => {
                 },
             },
             {
-                name: MicroCommandName.PowerShellSaveActiveWorkbookAs,
+                name: MicroCommandName.SaveExcelFile,
                 parameters: {
                     filePath: defaultFileOutPath,
                 },
@@ -440,6 +455,7 @@ test("Run Micro Commands - Open, Eval, SaveAs, Close", async ({ request }) => {
 });
 
 test("Run Micro Command - ReadFileContents", async ({ request }) => {
+    cleanOutDirectory();
     const filePath = getCodeFile("hello-world.js");
     const expectedContents = readFileSync(filePath, "utf-8");
     const response = await request.post("/run-micro-commands", {
