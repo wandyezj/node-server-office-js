@@ -12,6 +12,7 @@ export enum MicroCommandName {
     PowerShellSaveExcelFile = "PowerShellSaveExcelFile",
     PowerShellSaveActiveWorkbookAs = "PowerShellSaveActiveWorkbookAs",
     ForceCloseExcel = "ForceCloseExcel",
+    ReadFileContents = "ReadFileContents",
 }
 
 export interface MicroCommandBase {
@@ -206,6 +207,23 @@ export interface MicroCommandForceCloseExcelResult extends MicroCommandBaseResul
     success: true;
 }
 
+/**
+ * Read the contents of a file from disk.
+ */
+export interface MicroCommandReadFileContents extends MicroCommandBase {
+    name: MicroCommandName.ReadFileContents;
+    parameters: {
+        filePath: string;
+    };
+}
+
+export interface MicroCommandReadFileContentsResult extends MicroCommandBaseResult {
+    success: true;
+    values: {
+        contents: string;
+    };
+}
+
 // Aggregates
 
 export interface MicroCommandResultError extends MicroCommandBaseResult {
@@ -226,7 +244,8 @@ export type MicroCommand =
     | MicroCommandPowerShellCloseExcelFile
     | MicroCommandPowerShellSaveExcelFile
     | MicroCommandPowerShellSaveActiveWorkbookAs
-    | MicroCommandForceCloseExcel;
+    | MicroCommandForceCloseExcel
+    | MicroCommandReadFileContents;
 
 export type MicroCommandResult =
     | MicroCommandResultError
@@ -242,7 +261,8 @@ export type MicroCommandResult =
     | MicroCommandPowerShellCloseExcelFileResult
     | MicroCommandPowerShellSaveExcelFileResult
     | MicroCommandPowerShellSaveActiveWorkbookAsResult
-    | MicroCommandForceCloseExcelResult;
+    | MicroCommandForceCloseExcelResult
+    | MicroCommandReadFileContentsResult;
 
 export type MicroCommandResultWithMetadata = MicroCommandResult & {
     metrics: {

@@ -31,5 +31,5 @@ export async function runMicroCommandOpenExcelFile(
 
     await connectionPromise;
 
-    return { success: true, id };
+    return { success: true, values: { id } };
 }

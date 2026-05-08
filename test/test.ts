@@ -6,6 +6,7 @@ import {
     MicroCommandBody,
     MicroCommandBodyResult,
     MicroCommandName,
+    MicroCommandReadFileContentsResult,
 } from "../src/server/handlers/microCommand/MicroCommand";
 
 test("GET / ping", async ({ request }) => {
@@ -436,6 +437,27 @@ test("Run Micro Commands - Open, Eval, SaveAs, Close", async ({ request }) => {
     }
 
     console.log(body);
+});
+
+test("Run Micro Command - ReadFileContents", async ({ request }) => {
+    const filePath = getCodeFile("hello-world.js");
+    const expectedContents = readFileSync(filePath, "utf-8");
+    const response = await request.post("/run-micro-commands", {
+        data: {
+            commands: [
+                {
+                    name: MicroCommandName.ReadFileContents,
+                    parameters: { filePath },
+                },
+            ],
+        },
+    });
+    expect(response.ok()).toBeTruthy();
+    const body = await response.text();
+    const message = JSON.parse(body) as MicroCommandBodyResult;
+    expect(message.results[0].success).toBeTruthy();
+    const result = message.results[0] as MicroCommandReadFileContentsResult;
+    expect(result.values.contents).toBe(expectedContents);
 });
 
 test("Run Standard Eval - invalid.js", async ({ request }) => {
