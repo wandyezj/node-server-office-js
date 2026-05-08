@@ -264,7 +264,7 @@ test("Run Micro Commands - Open, Eval, Save, Close (PowerShell)", async ({ reque
                 },
             },
             {
-                name: MicroCommandName.PowerShellSaveExcelFile,
+                name: MicroCommandName.PowerShellSaveActiveWorkbookAs,
                 parameters: {
                     filePath: defaultFileOutPath,
                 },

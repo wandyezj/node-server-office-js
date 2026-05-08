@@ -94,7 +94,7 @@ class PowerShellManager {
     constructor() {}
 
     async openExcelFile(filePath: string): Promise<undefined> {
-        globalLog.log("Open Excel File", { indent: 1 });
+        globalLog.log("Open Excel File");
         if (this.#ps !== undefined) {
             throw new Error("Excel already open");
         }
@@ -110,21 +110,21 @@ class PowerShellManager {
         this.#ps = powershellOpen();
         //powershellSendCommand(this.#ps, `$host.ui.RawUI.WindowTitle = "Excel_Automation_Worker"`);
 
-        globalLog.log("powershellOpenExcel - start", { indent: 1 });
+        globalLog.log("powershellOpenExcel - start");
         powershellOpenExcel(this.#ps, filePathTemp);
-        globalLog.log("powershellOpenExcel - end", { indent: 1 });
+        globalLog.log("powershellOpenExcel - end");
 
         await connectionPromise;
     }
 
     async saveExcelFile(filePath: string): Promise<void> {
-        globalLog.log("Save Excel File", { indent: 1 });
+        globalLog.log("Save Excel File");
         // TODO: replace with COM save
         await getAndSaveExcelContents(filePath);
     }
 
     async closeExcelFile(): Promise<void> {
-        globalLog.log("Close Excel File", { indent: 1 });
+        globalLog.log("Close Excel File");
         if (this.#ps === undefined) {
             return;
         }
