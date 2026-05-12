@@ -19,48 +19,46 @@ import { runMicroCommandReadFileContents } from "./runMicroCommandReadFileConten
 import { runMicroCommandMetadataNodeVersion } from "./runMicroCommandMetadataNodeVersion";
 import { runMicroCommandMetadataServerVersion } from "./runMicroCommandMetadataServerVersion";
 
+type MicroCommandHandler<Name extends MicroCommandName> = (
+    command: Extract<MicroCommand, { name: Name }>,
+) => MicroCommandResult | Promise<MicroCommandResult>;
+
+const microCommandHandlers = {
+    [MicroCommandName.Console]: runMicroCommandConsole,
+    [MicroCommandName.StartConsole]: runMicroCommandStartConsole,
+    [MicroCommandName.EndConsole]: runMicroCommandEndConsole,
+    [MicroCommandName.StartLog]: runMicroCommandStartLog,
+    [MicroCommandName.EndLog]: runMicroCommandEndLog,
+    [MicroCommandName.AddinPing]: runMicroCommandAddinPing,
+    [MicroCommandName.AddinEval]: runMicroCommandAddinEval,
+    [MicroCommandName.OpenExcelFile]: runMicroCommandOpenExcelFile,
+    [MicroCommandName.CloseExcelFile]: runMicroCommandCloseExcelFile,
+    [MicroCommandName.SaveExcelFile]: runMicroCommandSaveExcelFile,
+    [MicroCommandName.PowerShellOpenExcelFile]: runMicroCommandPowerShellOpenExcelFile,
+    [MicroCommandName.PowerShellSaveExcelFile]: runMicroCommandPowerShellSaveExcelFile,
+    [MicroCommandName.PowerShellCloseExcelFile]: runMicroCommandPowerShellCloseExcelFile,
+    [MicroCommandName.PowerShellSaveActiveWorkbookAs]:
+        runMicroCommandPowerShellSaveActiveWorkbookAs,
+    [MicroCommandName.ForceCloseExcel]: runMicroCommandForceCloseExcel,
+    [MicroCommandName.ReadFileContents]: runMicroCommandReadFileContents,
+    [MicroCommandName.MetadataNodeVersion]: runMicroCommandMetadataNodeVersion,
+    [MicroCommandName.MetadataServerVersion]: runMicroCommandMetadataServerVersion,
+} satisfies { [Name in MicroCommandName]: MicroCommandHandler<Name> };
+
+function getMicroCommandHandler<Name extends MicroCommandName>(
+    name: Name,
+): MicroCommandHandler<Name> {
+    return microCommandHandlers[name] as MicroCommandHandler<Name>;
+}
+
 export async function runMicroCommand(command: MicroCommand): Promise<MicroCommandResult> {
     const { name } = command;
     globalLog.log(`μ Run micro command: ${name}`, { indent: 1 });
-    switch (name) {
-        case MicroCommandName.Console:
-            return runMicroCommandConsole(command);
-        case MicroCommandName.StartConsole:
-            return runMicroCommandStartConsole(command);
-        case MicroCommandName.EndConsole:
-            return runMicroCommandEndConsole(command);
-        case MicroCommandName.StartLog:
-            return runMicroCommandStartLog(command);
-        case MicroCommandName.EndLog:
-            return runMicroCommandEndLog(command);
-        case MicroCommandName.AddinPing:
-            return runMicroCommandAddinPing(command);
-        case MicroCommandName.AddinEval:
-            return runMicroCommandAddinEval(command);
-        case MicroCommandName.OpenExcelFile:
-            return runMicroCommandOpenExcelFile(command);
-        case MicroCommandName.CloseExcelFile:
-            return runMicroCommandCloseExcelFile(command);
-        case MicroCommandName.SaveExcelFile:
-            return runMicroCommandSaveExcelFile(command);
-        case MicroCommandName.PowerShellOpenExcelFile:
-            return runMicroCommandPowerShellOpenExcelFile(command);
-        case MicroCommandName.PowerShellSaveExcelFile:
-            return runMicroCommandPowerShellSaveExcelFile(command);
-        case MicroCommandName.PowerShellCloseExcelFile:
-            return runMicroCommandPowerShellCloseExcelFile(command);
-        case MicroCommandName.PowerShellSaveActiveWorkbookAs:
-            return runMicroCommandPowerShellSaveActiveWorkbookAs(command);
-        case MicroCommandName.ForceCloseExcel:
-            return runMicroCommandForceCloseExcel(command);
-        case MicroCommandName.ReadFileContents:
-            return runMicroCommandReadFileContents(command);
-        case MicroCommandName.MetadataNodeVersion:
-            return runMicroCommandMetadataNodeVersion(command);
-        case MicroCommandName.MetadataServerVersion:
-            return runMicroCommandMetadataServerVersion(command);
-        default:
-            globalLog.error(`Unknown command: ${name}`);
-            return { success: false, error: `Unknown command: ${name}` };
+
+    if (Object.hasOwn(microCommandHandlers, name)) {
+        return getMicroCommandHandler(name)(command);
     }
+
+    globalLog.error(`Unknown command: ${name}`);
+    return { success: false, error: `Unknown command: ${name}` };
 }
