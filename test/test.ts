@@ -5,6 +5,7 @@ import {
     MicroCommandAddinEvalResult,
     MicroCommandBody,
     MicroCommandBodyResult,
+    MicroCommandMetadataNodeVersionResult,
     MicroCommandName,
     MicroCommandReadFileContentsResult,
 } from "../src/server/handlers/microCommand/MicroCommand";
@@ -474,6 +475,24 @@ test("Run Micro Command - ReadFileContents", async ({ request }) => {
     expect(message.results[0].success).toBeTruthy();
     const result = message.results[0] as MicroCommandReadFileContentsResult;
     expect(result.values.contents).toBe(expectedContents);
+});
+
+test("Run Micro Command - MetadataNodeVersion", async ({ request }) => {
+    const response = await request.post("/run-micro-commands", {
+        data: {
+            commands: [
+                {
+                    name: MicroCommandName.MetadataNodeVersion,
+                },
+            ],
+        },
+    });
+    expect(response.ok()).toBeTruthy();
+    const body = await response.text();
+    const message = JSON.parse(body) as MicroCommandBodyResult;
+    expect(message.results[0].success).toBeTruthy();
+    const result = message.results[0] as MicroCommandMetadataNodeVersionResult;
+    expect(result.values.version).toBe(process.versions.node);
 });
 
 test("Run Standard Eval - invalid.js", async ({ request }) => {

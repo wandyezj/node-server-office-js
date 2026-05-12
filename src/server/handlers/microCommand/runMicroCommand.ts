@@ -14,6 +14,7 @@ import { runMicroCommandPowerShellCloseExcelFile } from "./runMicroCommandPowerS
 import { runMicroCommandPowerShellSaveActiveWorkbookAs } from "./runMicroCommandPowerShellSaveActiveWorkbookAs";
 import { runMicroCommandForceCloseExcel } from "./runMicroCommandForceCloseExcel";
 import { runMicroCommandReadFileContents } from "./runMicroCommandReadFileContents";
+import { runMicroCommandMetadataNodeVersion } from "./runMicroCommandMetadataNodeVersion";
 
 export async function runMicroCommand(command: MicroCommand): Promise<MicroCommandResult> {
     const { name } = command;
@@ -47,6 +48,8 @@ export async function runMicroCommand(command: MicroCommand): Promise<MicroComma
             return runMicroCommandForceCloseExcel(command);
         case MicroCommandName.ReadFileContents:
             return runMicroCommandReadFileContents(command);
+        case MicroCommandName.MetadataNodeVersion:
+            return runMicroCommandMetadataNodeVersion(command);
         default:
             globalLog.error(`Unknown command: ${name}`);
             return { success: false, error: `Unknown command: ${name}` };

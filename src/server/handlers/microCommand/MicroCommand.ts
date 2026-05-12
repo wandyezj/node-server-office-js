@@ -13,6 +13,7 @@ export enum MicroCommandName {
     PowerShellSaveActiveWorkbookAs = "PowerShellSaveActiveWorkbookAs",
     ForceCloseExcel = "ForceCloseExcel",
     ReadFileContents = "ReadFileContents",
+    MetadataNodeVersion = "MetadataNodeVersion",
 }
 
 export interface MicroCommandBase {
@@ -224,6 +225,20 @@ export interface MicroCommandReadFileContentsResult extends MicroCommandBaseResu
     };
 }
 
+/**
+ * Return the Node.js version used by the server runtime.
+ */
+export interface MicroCommandMetadataNodeVersion extends MicroCommandBase {
+    name: MicroCommandName.MetadataNodeVersion;
+}
+
+export interface MicroCommandMetadataNodeVersionResult extends MicroCommandBaseResult {
+    success: true;
+    values: {
+        version: string;
+    };
+}
+
 // Aggregates
 
 export interface MicroCommandResultError extends MicroCommandBaseResult {
@@ -245,7 +260,8 @@ export type MicroCommand =
     | MicroCommandPowerShellSaveExcelFile
     | MicroCommandPowerShellSaveActiveWorkbookAs
     | MicroCommandForceCloseExcel
-    | MicroCommandReadFileContents;
+    | MicroCommandReadFileContents
+    | MicroCommandMetadataNodeVersion;
 
 export type MicroCommandResult =
     | MicroCommandResultError
@@ -262,7 +278,8 @@ export type MicroCommandResult =
     | MicroCommandPowerShellSaveExcelFileResult
     | MicroCommandPowerShellSaveActiveWorkbookAsResult
     | MicroCommandForceCloseExcelResult
-    | MicroCommandReadFileContentsResult;
+    | MicroCommandReadFileContentsResult
+    | MicroCommandMetadataNodeVersionResult;
 
 export type MicroCommandResultWithMetadata = MicroCommandResult & {
     metrics: {
