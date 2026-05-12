@@ -7,9 +7,11 @@ import {
     MicroCommandBody,
     MicroCommandBodyResult,
     MicroCommandMetadataNodeVersionResult,
+    MicroCommandMetadataServerVersionResult,
     MicroCommandName,
     MicroCommandReadFileContentsResult,
 } from "../src/server/handlers/microCommand/MicroCommand";
+import packageJson from "../package.json";
 
 test("GET / ping", async ({ request }) => {
     const response = await request.get("/ping");
@@ -401,6 +403,16 @@ test("Run Micro Command - MetadataNodeVersion", async ({ request }) => {
     ]);
     const result = message.results[0] as MicroCommandMetadataNodeVersionResult;
     expect(result.values.version).toBe(process.versions.node);
+});
+
+test("Run Micro Command - MetadataServerVersion", async ({ request }) => {
+    const message = await RunMicroCommands(request, [
+        {
+            name: MicroCommandName.MetadataServerVersion,
+        },
+    ]);
+    const result = message.results[0] as MicroCommandMetadataServerVersionResult;
+    expect(result.values.version).toBe(packageJson.version);
 });
 
 test("Run Standard Eval - invalid.js", async ({ request }) => {

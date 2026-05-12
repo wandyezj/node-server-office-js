@@ -14,6 +14,7 @@ export enum MicroCommandName {
     ForceCloseExcel = "ForceCloseExcel",
     ReadFileContents = "ReadFileContents",
     MetadataNodeVersion = "MetadataNodeVersion",
+    MetadataServerVersion = "MetadataServerVersion",
 }
 
 export interface MicroCommandBase {
@@ -239,6 +240,20 @@ export interface MicroCommandMetadataNodeVersionResult extends MicroCommandBaseR
     };
 }
 
+/**
+ * Return the server package version.
+ */
+export interface MicroCommandMetadataServerVersion extends MicroCommandBase {
+    name: MicroCommandName.MetadataServerVersion;
+}
+
+export interface MicroCommandMetadataServerVersionResult extends MicroCommandBaseResult {
+    success: true;
+    values: {
+        version: string;
+    };
+}
+
 // Aggregates
 
 export interface MicroCommandResultError extends MicroCommandBaseResult {
@@ -261,7 +276,8 @@ export type MicroCommand =
     | MicroCommandPowerShellSaveActiveWorkbookAs
     | MicroCommandForceCloseExcel
     | MicroCommandReadFileContents
-    | MicroCommandMetadataNodeVersion;
+    | MicroCommandMetadataNodeVersion
+    | MicroCommandMetadataServerVersion;
 
 export type MicroCommandResult =
     | MicroCommandResultError
@@ -279,7 +295,8 @@ export type MicroCommandResult =
     | MicroCommandPowerShellSaveActiveWorkbookAsResult
     | MicroCommandForceCloseExcelResult
     | MicroCommandReadFileContentsResult
-    | MicroCommandMetadataNodeVersionResult;
+    | MicroCommandMetadataNodeVersionResult
+    | MicroCommandMetadataServerVersionResult;
 
 export type MicroCommandResultWithMetadata = MicroCommandResult & {
     metrics: {
