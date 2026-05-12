@@ -119,6 +119,38 @@ test("Run Micro Commands - StartLog and EndLog", async ({ request }) => {
     expect(logFile).toContain("Hello from the log file!");
 });
 
+test("Run Micro Commands - StartConsole and EndConsole", async ({ request }) => {
+    const logFilePath = getDefaultLogFilePath("micro-command-console.log");
+    const message = "Hello while console output is disabled!";
+
+    await RunMicroCommands(request, [
+        {
+            name: MicroCommandName.EndConsole,
+        },
+        {
+            name: MicroCommandName.StartLog,
+            parameters: {
+                filePath: logFilePath,
+            },
+        },
+        {
+            name: MicroCommandName.Console,
+            parameters: {
+                message,
+            },
+        },
+        {
+            name: MicroCommandName.EndLog,
+        },
+        {
+            name: MicroCommandName.StartConsole,
+        },
+    ]);
+
+    const logFile = readFileSync(logFilePath, "utf-8");
+    expect(logFile).toContain(message);
+});
+
 test("Run Micro Command - Open Excel File", async ({ request }) => {
     await RunMicroCommands(request, [
         {

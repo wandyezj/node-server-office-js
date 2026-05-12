@@ -4,9 +4,11 @@ import { runMicroCommandAddinEval } from "./runMicroCommandAddinEval";
 import { runMicroCommandAddinPing } from "./runMicroCommandAddinPing";
 import { runMicroCommandCloseExcelFile } from "./runMicroCommandCloseExcelFile";
 import { runMicroCommandConsole } from "./runMicroCommandConsole";
+import { runMicroCommandEndConsole } from "./runMicroCommandEndConsole";
 import { runMicroCommandEndLog } from "./runMicroCommandEndLog";
 import { runMicroCommandOpenExcelFile } from "./runMicroCommandOpenExcelFile";
 import { runMicroCommandSaveExcelFile } from "./runMicroCommandSaveExcelFile";
+import { runMicroCommandStartConsole } from "./runMicroCommandStartConsole";
 import { runMicroCommandStartLog } from "./runMicroCommandStartLog";
 import { runMicroCommandPowerShellOpenExcelFile } from "./runMicroCommandPowerShellOpenExcelFile";
 import { runMicroCommandPowerShellSaveExcelFile } from "./runMicroCommandPowerShellSaveExcelFile";
@@ -23,6 +25,10 @@ export async function runMicroCommand(command: MicroCommand): Promise<MicroComma
     switch (name) {
         case MicroCommandName.Console:
             return runMicroCommandConsole(command);
+        case MicroCommandName.StartConsole:
+            return runMicroCommandStartConsole(command);
+        case MicroCommandName.EndConsole:
+            return runMicroCommandEndConsole(command);
         case MicroCommandName.StartLog:
             return runMicroCommandStartLog(command);
         case MicroCommandName.EndLog:

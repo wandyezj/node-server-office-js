@@ -1,5 +1,7 @@
 export enum MicroCommandName {
     Console = "Console",
+    StartConsole = "StartConsole",
+    EndConsole = "EndConsole",
     StartLog = "StartLog",
     EndLog = "EndLog",
     AddinPing = "AddinPing",
@@ -40,6 +42,28 @@ export interface MicroCommandConsole extends MicroCommandBase {
 }
 
 export interface MicroCommandConsoleResult extends MicroCommandBaseResult {
+    success: true;
+}
+
+/**
+ * Start writing global logger output to the server console.
+ */
+export interface MicroCommandStartConsole extends MicroCommandBase {
+    name: MicroCommandName.StartConsole;
+}
+
+export interface MicroCommandStartConsoleResult extends MicroCommandBaseResult {
+    success: true;
+}
+
+/**
+ * Stop writing global logger output to the server console.
+ */
+export interface MicroCommandEndConsole extends MicroCommandBase {
+    name: MicroCommandName.EndConsole;
+}
+
+export interface MicroCommandEndConsoleResult extends MicroCommandBaseResult {
     success: true;
 }
 
@@ -263,6 +287,8 @@ export interface MicroCommandResultError extends MicroCommandBaseResult {
 
 export type MicroCommand =
     | MicroCommandConsole
+    | MicroCommandStartConsole
+    | MicroCommandEndConsole
     | MicroCommandStartLog
     | MicroCommandEndLog
     | MicroCommandAddinPing
@@ -282,6 +308,8 @@ export type MicroCommand =
 export type MicroCommandResult =
     | MicroCommandResultError
     | MicroCommandConsoleResult
+    | MicroCommandStartConsoleResult
+    | MicroCommandEndConsoleResult
     | MicroCommandStartLogResult
     | MicroCommandEndLogResult
     | MicroCommandAddinPingResult
