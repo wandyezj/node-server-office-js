@@ -2,6 +2,7 @@ import { APIRequestContext, expect, test } from "@playwright/test";
 import { existsSync, mkdirSync, readFileSync, unlinkSync } from "node:fs";
 import * as path from "node:path";
 import {
+    MicroCommand,
     MicroCommandAddinEvalResult,
     MicroCommandBody,
     MicroCommandBodyResult,
@@ -61,179 +62,135 @@ function cleanOutDirectory() {
     mkdirSync(defaultPathOutDirectory, { recursive: true });
 }
 
-test("Run Micro Command - Console", async ({ request }) => {
+async function RunMicroCommands(
+    request: APIRequestContext,
+    commands: MicroCommand[],
+): Promise<MicroCommandBodyResult> {
     const response = await request.post("/run-micro-commands", {
-        data: {
-            commands: [
-                {
-                    name: "Console",
-                    parameters: {
-                        message: "Hello, World!",
-                    },
-                },
-            ],
-        },
+        data: { commands },
     });
     expect(response.ok()).toBeTruthy();
+
     const body = await response.text();
-    const message = JSON.parse(body);
-    expect(message.results[0].success).toBeTruthy();
+    const message = JSON.parse(body) as MicroCommandBodyResult;
+    expect(message.results).toHaveLength(commands.length);
+    for (const result of message.results) {
+        expect(result.success).toBe(true);
+    }
+
+    return message;
+}
+
+test("Run Micro Command - Console", async ({ request }) => {
+    await RunMicroCommands(request, [
+        {
+            name: MicroCommandName.Console,
+            parameters: {
+                message: "Hello, World!",
+            },
+        },
+    ]);
 });
 
 test("Run Micro Commands - StartLog and EndLog", async ({ request }) => {
     const logFilePath = getDefaultLogFilePath();
 
-    const response = await request.post("/run-micro-commands", {
-        data: {
-            commands: [
-                {
-                    name: MicroCommandName.StartLog,
-                    parameters: {
-                        filePath: logFilePath,
-                    },
-                },
-                {
-                    name: MicroCommandName.Console,
-                    parameters: {
-                        message: "Hello from the log file!",
-                    },
-                },
-                {
-                    name: MicroCommandName.EndLog,
-                },
-            ],
+    await RunMicroCommands(request, [
+        {
+            name: MicroCommandName.StartLog,
+            parameters: {
+                filePath: logFilePath,
+            },
         },
-    });
-
-    expect(response.ok()).toBeTruthy();
-    const body = await response.text();
-    const message = JSON.parse(body);
-    expect(message.results).toHaveLength(3);
-    for (const result of message.results) {
-        expect(result.success).toBeTruthy();
-    }
+        {
+            name: MicroCommandName.Console,
+            parameters: {
+                message: "Hello from the log file!",
+            },
+        },
+        {
+            name: MicroCommandName.EndLog,
+        },
+    ]);
 
     const logFile = readFileSync(logFilePath, "utf-8");
     expect(logFile).toContain("Hello from the log file!");
 });
 
 test("Run Micro Command - Open Excel File", async ({ request }) => {
-    const response = await request.post("/run-micro-commands", {
-        data: {
-            commands: [
-                {
-                    name: "OpenExcelFile",
-                    parameters: {
-                        filePath: defaultFilePath,
-                    },
-                },
-            ],
+    await RunMicroCommands(request, [
+        {
+            name: MicroCommandName.OpenExcelFile,
+            parameters: {
+                filePath: defaultFilePath,
+            },
         },
-    });
-    expect(response.ok()).toBeTruthy();
-    const body = await response.text();
-    const message = JSON.parse(body);
-    expect(message.results[0].success).toBeTruthy();
+    ]);
 });
 
 test("Run Micro Command - Eval", async ({ request }) => {
     const code = readFileSync(defaultCodeFilePath, "utf-8");
-    const response = await request.post("/run-micro-commands", {
-        data: {
-            commands: [
-                {
-                    name: "AddinEval",
-                    parameters: {
-                        code,
-                    },
-                },
-            ],
+    await RunMicroCommands(request, [
+        {
+            name: MicroCommandName.AddinEval,
+            parameters: {
+                code,
+            },
         },
-    });
-    expect(response.ok()).toBeTruthy();
-    const body = await response.text();
-    const message = JSON.parse(body);
-    expect(message.results[0].success).toBeTruthy();
+    ]);
 });
 
 test("Run Micro Command - Save Excel File", async ({ request }) => {
-    const response = await request.post("/run-micro-commands", {
-        data: {
-            commands: [
-                {
-                    name: "SaveExcelFile",
-                    parameters: {
-                        filePath: defaultFileOutPath,
-                    },
-                },
-            ],
+    await RunMicroCommands(request, [
+        {
+            name: MicroCommandName.SaveExcelFile,
+            parameters: {
+                filePath: defaultFileOutPath,
+            },
         },
-    });
-    expect(response.ok()).toBeTruthy();
-    const body = await response.text();
-    const message = JSON.parse(body);
-    expect(message.results[0].success).toBeTruthy();
+    ]);
 });
 
 test("Run Micro Command - Close Excel File", async ({ request }) => {
-    const response = await request.post("/run-micro-commands", {
-        data: {
-            commands: [
-                {
-                    name: "CloseExcelFile",
-                    parameters: {
-                        filePath: defaultFilePath,
-                    },
-                },
-            ],
+    await RunMicroCommands(request, [
+        {
+            name: MicroCommandName.CloseExcelFile,
+            parameters: {
+                filePath: defaultFilePath,
+            },
         },
-    });
-    expect(response.ok()).toBeTruthy();
-    const body = await response.text();
-    const message = JSON.parse(body);
-    expect(message.results[0].success).toBeTruthy();
+    ]);
 });
 
 test("Run Micro Commands - Open, Eval, Save, Close", async ({ request }) => {
     cleanOutDirectory();
     const code = readFileSync(defaultCodeFilePath, "utf-8");
-    const response = await request.post("/run-micro-commands", {
-        data: {
-            commands: [
-                {
-                    name: "OpenExcelFile",
-                    parameters: {
-                        filePath: defaultFilePath,
-                    },
-                },
-                {
-                    name: "AddinEval",
-                    parameters: {
-                        code,
-                    },
-                },
-                {
-                    name: "SaveExcelFile",
-                    parameters: {
-                        filePath: defaultFileOutPath,
-                    },
-                },
-                {
-                    name: "CloseExcelFile",
-                    parameters: {
-                        filePath: defaultFilePath,
-                    },
-                },
-            ],
+    await RunMicroCommands(request, [
+        {
+            name: MicroCommandName.OpenExcelFile,
+            parameters: {
+                filePath: defaultFilePath,
+            },
         },
-    });
-    expect(response.ok()).toBeTruthy();
-    const body = await response.text();
-    const message = JSON.parse(body);
-    expect(message.results).toHaveLength(4);
-    for (const result of message.results) {
-        expect(result.success).toBeTruthy();
-    }
+        {
+            name: MicroCommandName.AddinEval,
+            parameters: {
+                code,
+            },
+        },
+        {
+            name: MicroCommandName.SaveExcelFile,
+            parameters: {
+                filePath: defaultFileOutPath,
+            },
+        },
+        {
+            name: MicroCommandName.CloseExcelFile,
+            parameters: {
+                filePath: defaultFilePath,
+            },
+        },
+    ]);
 });
 
 test("Run Micro Commands - Open, Eval, Save, Close (PowerShell)", async ({ request }) => {
@@ -278,14 +235,7 @@ test("Run Micro Commands - Open, Eval, Save, Close (PowerShell)", async ({ reque
             },
         ],
     };
-    const response = await request.post("/run-micro-commands", { data: microCommandBody });
-    expect(response.ok()).toBeTruthy();
-    const body = await response.text();
-    const message = JSON.parse(body);
-    expect(message.results).toHaveLength(microCommandBody.commands.length);
-    for (const result of message.results) {
-        expect(result.success).toBeTruthy();
-    }
+    await RunMicroCommands(request, microCommandBody.commands);
 });
 
 async function runStandardOpen(request: APIRequestContext) {
@@ -312,14 +262,7 @@ async function runStandardOpen(request: APIRequestContext) {
             },
         ],
     };
-    const response = await request.post("/run-micro-commands", { data: microCommandBody });
-    expect(response.ok()).toBeTruthy();
-    const body = await response.text();
-    const message = JSON.parse(body);
-    expect(message.results).toHaveLength(microCommandBody.commands.length);
-    for (const result of message.results) {
-        expect(result.success).toBeTruthy();
-    }
+    await RunMicroCommands(request, microCommandBody.commands);
 }
 
 async function runStandardClose(request: APIRequestContext) {
@@ -349,18 +292,10 @@ async function runStandardClose(request: APIRequestContext) {
             },
         ],
     };
-    const response = await request.post("/run-micro-commands", { data: microCommandBody });
-    expect(response.ok()).toBeTruthy();
-    const body = await response.text();
-    const message = JSON.parse(body);
-    expect(message.results).toHaveLength(microCommandBody.commands.length);
-    for (const result of message.results) {
-        expect(result.success).toBeTruthy();
-    }
+    await RunMicroCommands(request, microCommandBody.commands);
 }
 
 async function runStandardEval(request: APIRequestContext, code: string) {
-    const logFilePath = getDefaultLogFilePath();
     const microCommandBody: MicroCommandBody = {
         commands: [
             {
@@ -424,12 +359,7 @@ test("Run Micro Commands - Open, Eval, SaveAs, Close", async ({ request }) => {
         ],
     };
 
-    const response = await request.post("/run-micro-commands", {
-        data: microCommandBody,
-    });
-    expect(response.ok()).toBeTruthy();
-    const body = await response.text();
-    const message = JSON.parse(body) as { results: { success: boolean }[] };
+    const message = await RunMicroCommands(request, microCommandBody.commands);
 
     // Check each command for success
     message.results.forEach((value, index) => {
@@ -446,51 +376,29 @@ test("Run Micro Commands - Open, Eval, SaveAs, Close", async ({ request }) => {
         );
     });
 
-    // Every command has a result
-    expect(message.results).toHaveLength(microCommandBody.commands.length);
-    for (const result of message.results) {
-        expect(result.success).toBeTruthy();
-    }
-
-    console.log(body);
+    console.log(JSON.stringify(message));
 });
 
 test("Run Micro Command - ReadFileContents", async ({ request }) => {
     cleanOutDirectory();
     const filePath = getCodeFile("hello-world.js");
     const expectedContents = readFileSync(filePath, "utf-8");
-    const response = await request.post("/run-micro-commands", {
-        data: {
-            commands: [
-                {
-                    name: MicroCommandName.ReadFileContents,
-                    parameters: { filePath },
-                },
-            ],
+    const message = await RunMicroCommands(request, [
+        {
+            name: MicroCommandName.ReadFileContents,
+            parameters: { filePath },
         },
-    });
-    expect(response.ok()).toBeTruthy();
-    const body = await response.text();
-    const message = JSON.parse(body) as MicroCommandBodyResult;
-    expect(message.results[0].success).toBeTruthy();
+    ]);
     const result = message.results[0] as MicroCommandReadFileContentsResult;
     expect(result.values.contents).toBe(expectedContents);
 });
 
 test("Run Micro Command - MetadataNodeVersion", async ({ request }) => {
-    const response = await request.post("/run-micro-commands", {
-        data: {
-            commands: [
-                {
-                    name: MicroCommandName.MetadataNodeVersion,
-                },
-            ],
+    const message = await RunMicroCommands(request, [
+        {
+            name: MicroCommandName.MetadataNodeVersion,
         },
-    });
-    expect(response.ok()).toBeTruthy();
-    const body = await response.text();
-    const message = JSON.parse(body) as MicroCommandBodyResult;
-    expect(message.results[0].success).toBeTruthy();
+    ]);
     const result = message.results[0] as MicroCommandMetadataNodeVersionResult;
     expect(result.values.version).toBe(process.versions.node);
 });
