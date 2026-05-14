@@ -8,7 +8,7 @@
         "build": "npm run style-check && npm run clean && npm run compile && npm run generate-python-interface",
         "style": "prettier --config ./config/prettier.json --write \"@(src|test)/**/*.@(ts|tsx|js|md|html|css|json)\"",
         "style-check": "prettier --config ./config/prettier.json --check \"@(src|test)/**/*.@(ts|tsx|js|md|html|css|json)\"",
-        "generate-python-interface": "node.exe ./scripts/micro-command-python.js",
+        "generate-python-interface": "node ./scripts/micro-command-python.js",
         "ping": "ts-node ./scripts/ping.ts",
         "test": "playwright test --config ./config/playwright.config.ts",
         "test:ui": "playwright test --config ./config/playwright.config.ts --ui",
