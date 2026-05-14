@@ -338,6 +338,10 @@ export interface MicroCommandBody {
 
 export interface MicroCommandBodyResult {
     results: MicroCommandResultWithMetadata[];
+    /**
+     * All micro commands reported success
+     */
+    success: boolean;
     metrics: {
         durationMs: number;
     };
