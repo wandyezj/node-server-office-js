@@ -1,5 +1,7 @@
 export enum MicroCommandName {
     Console = "Console",
+    StartConsole = "StartConsole",
+    EndConsole = "EndConsole",
     StartLog = "StartLog",
     EndLog = "EndLog",
     AddinPing = "AddinPing",
@@ -12,6 +14,9 @@ export enum MicroCommandName {
     PowerShellSaveExcelFile = "PowerShellSaveExcelFile",
     PowerShellSaveActiveWorkbookAs = "PowerShellSaveActiveWorkbookAs",
     ForceCloseExcel = "ForceCloseExcel",
+    ReadFileContents = "ReadFileContents",
+    MetadataNodeVersion = "MetadataNodeVersion",
+    MetadataServerVersion = "MetadataServerVersion",
 }
 
 export interface MicroCommandBase {
@@ -37,6 +42,28 @@ export interface MicroCommandConsole extends MicroCommandBase {
 }
 
 export interface MicroCommandConsoleResult extends MicroCommandBaseResult {
+    success: true;
+}
+
+/**
+ * Start writing global logger output to the server console.
+ */
+export interface MicroCommandStartConsole extends MicroCommandBase {
+    name: MicroCommandName.StartConsole;
+}
+
+export interface MicroCommandStartConsoleResult extends MicroCommandBaseResult {
+    success: true;
+}
+
+/**
+ * Stop writing global logger output to the server console.
+ */
+export interface MicroCommandEndConsole extends MicroCommandBase {
+    name: MicroCommandName.EndConsole;
+}
+
+export interface MicroCommandEndConsoleResult extends MicroCommandBaseResult {
     success: true;
 }
 
@@ -206,6 +233,51 @@ export interface MicroCommandForceCloseExcelResult extends MicroCommandBaseResul
     success: true;
 }
 
+/**
+ * Read the contents of a file from disk.
+ */
+export interface MicroCommandReadFileContents extends MicroCommandBase {
+    name: MicroCommandName.ReadFileContents;
+    parameters: {
+        filePath: string;
+    };
+}
+
+export interface MicroCommandReadFileContentsResult extends MicroCommandBaseResult {
+    success: true;
+    values: {
+        contents: string;
+    };
+}
+
+/**
+ * Return the Node.js version used by the server runtime.
+ */
+export interface MicroCommandMetadataNodeVersion extends MicroCommandBase {
+    name: MicroCommandName.MetadataNodeVersion;
+}
+
+export interface MicroCommandMetadataNodeVersionResult extends MicroCommandBaseResult {
+    success: true;
+    values: {
+        version: string;
+    };
+}
+
+/**
+ * Return the server package version.
+ */
+export interface MicroCommandMetadataServerVersion extends MicroCommandBase {
+    name: MicroCommandName.MetadataServerVersion;
+}
+
+export interface MicroCommandMetadataServerVersionResult extends MicroCommandBaseResult {
+    success: true;
+    values: {
+        version: string;
+    };
+}
+
 // Aggregates
 
 export interface MicroCommandResultError extends MicroCommandBaseResult {
@@ -215,6 +287,8 @@ export interface MicroCommandResultError extends MicroCommandBaseResult {
 
 export type MicroCommand =
     | MicroCommandConsole
+    | MicroCommandStartConsole
+    | MicroCommandEndConsole
     | MicroCommandStartLog
     | MicroCommandEndLog
     | MicroCommandAddinPing
@@ -226,11 +300,16 @@ export type MicroCommand =
     | MicroCommandPowerShellCloseExcelFile
     | MicroCommandPowerShellSaveExcelFile
     | MicroCommandPowerShellSaveActiveWorkbookAs
-    | MicroCommandForceCloseExcel;
+    | MicroCommandForceCloseExcel
+    | MicroCommandReadFileContents
+    | MicroCommandMetadataNodeVersion
+    | MicroCommandMetadataServerVersion;
 
 export type MicroCommandResult =
     | MicroCommandResultError
     | MicroCommandConsoleResult
+    | MicroCommandStartConsoleResult
+    | MicroCommandEndConsoleResult
     | MicroCommandStartLogResult
     | MicroCommandEndLogResult
     | MicroCommandAddinPingResult
@@ -242,7 +321,10 @@ export type MicroCommandResult =
     | MicroCommandPowerShellCloseExcelFileResult
     | MicroCommandPowerShellSaveExcelFileResult
     | MicroCommandPowerShellSaveActiveWorkbookAsResult
-    | MicroCommandForceCloseExcelResult;
+    | MicroCommandForceCloseExcelResult
+    | MicroCommandReadFileContentsResult
+    | MicroCommandMetadataNodeVersionResult
+    | MicroCommandMetadataServerVersionResult;
 
 export type MicroCommandResultWithMetadata = MicroCommandResult & {
     metrics: {
@@ -256,6 +338,10 @@ export interface MicroCommandBody {
 
 export interface MicroCommandBodyResult {
     results: MicroCommandResultWithMetadata[];
+    /**
+     * All micro commands reported success
+     */
+    success: boolean;
     metrics: {
         durationMs: number;
     };

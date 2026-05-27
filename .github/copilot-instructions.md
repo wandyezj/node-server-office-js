@@ -4,6 +4,8 @@
 - Use TypeScript with strict typing (see tsconfig.json).
 - Prefer Node built-in imports with the node: prefix (example: src/index.ts).
 - Keep server responses explicit about status and content type.
+- Avoid repeating identical constant strings; assign them to a local constant or shared constant when reused.
+- Prefer the positive case in if statements.
 
 ## Architecture
 - Keep this repository as a minimal Node HTTP server scaffold centered on src/index.ts.

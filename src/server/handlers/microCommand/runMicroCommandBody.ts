@@ -48,6 +48,7 @@ export async function runMicroCommandBody(body: MicroCommandBody): Promise<Micro
 
     const resultBody: MicroCommandBodyResult = {
         results,
+        success: results.every((result) => result.success),
         metrics: {
             durationMs,
         },

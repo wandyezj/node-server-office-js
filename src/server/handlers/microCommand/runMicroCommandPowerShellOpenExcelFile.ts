@@ -1,5 +1,4 @@
 import { globalPowerShell } from "../../globalPowerShell";
-import { globalWebsocket } from "../../globalWebsocket";
 import {
     MicroCommandPowerShellOpenExcelFile,
     MicroCommandPowerShellOpenExcelFileResult,

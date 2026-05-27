@@ -20,6 +20,7 @@ function applyIndent(message: string, indent: number) {
 class CommonLogger {
     #indent = 0;
     #filePath: string | undefined;
+    #consoleEnabled = true;
 
     indent() {
         this.#indent++;
@@ -45,8 +46,18 @@ class CommonLogger {
         this.#filePath = undefined;
     }
 
+    startConsole() {
+        this.#consoleEnabled = true;
+    }
+
+    endConsole() {
+        this.#consoleEnabled = false;
+    }
+
     #write(message: string, consoleLog: (message: string) => void) {
-        consoleLog(message);
+        if (this.#consoleEnabled) {
+            consoleLog(message);
+        }
 
         if (this.#filePath === undefined) {
             return;
