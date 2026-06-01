@@ -5,6 +5,13 @@ import {
     ProtocolMessageType,
 } from "../ProtocolMessage";
 
+function getStringOrEmpty(value: unknown): string {
+    if (typeof value === "string") {
+        return value;
+    }
+    return "";
+}
+
 /**
  * Eval and capture any error or console.log
  */
@@ -25,8 +32,26 @@ async function evalCode(
         // This is the key functionality to allow evaluating arbitrary code.
         /* eslint-disable no-eval */
         result = await eval.call(globalThis, code);
-    } catch (err) {
-        error = (err as Error).message;
+    } catch (e: any) {
+        // stringify whatever is received.
+        // Specific error formats should be handled in the evaluate code.
+
+        // Special case for Error objects, since these can't always be handled in evaluate code.
+        // By default JSON.stringify on an error returns '{}'.
+        // If the error is an instance of Error serialize the properties.
+        if (e instanceof Error && typeof e.message === "string") {
+            const name = getStringOrEmpty(e.name);
+            const message = getStringOrEmpty(e.message);
+            const stack = getStringOrEmpty(e.stack);
+
+            error = JSON.stringify({
+                name,
+                message,
+                stack,
+            });
+        } else {
+            error = JSON.stringify(e);
+        }
     }
 
     console.log = originalConsoleLog;

@@ -7,7 +7,7 @@ const port = config.http.port;
 export default defineConfig({
     testDir: "../test",
     testMatch: /.*\.ts/,
-    fullyParallel: true,
+    fullyParallel: false,
     reporter: "list",
     use: {
         baseURL: `http://localhost:${port}`,

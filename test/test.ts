@@ -12,6 +12,7 @@ import {
     MicroCommandReadFileContentsResult,
 } from "../src/server/handlers/microCommand/MicroCommand";
 import packageJson from "../package.json";
+import assert from "node:assert";
 
 test("GET / ping", async ({ request }) => {
     const response = await request.get("/ping");
@@ -468,6 +469,17 @@ test("Run Micro Commands - reports aggregate failure", async ({ request }) => {
     expect(message.results[0].success).toBe(false);
 });
 
+function getErrorObject(evalResult: MicroCommandAddinEvalResult): {
+    name: string;
+    message: string;
+    stack: string;
+} {
+    const error = evalResult.values.error;
+    expect(typeof error).toBe("string");
+    assert(typeof error === "string");
+    const errorObject = JSON.parse(error);
+    return errorObject;
+}
 test("Run Standard Eval - invalid.js", async ({ request }) => {
     const code = `console.log("Syntax Error");
 function test() {
@@ -480,5 +492,29 @@ function test() {
     console.log(jsonBody);
     const json = JSON.parse(jsonBody) as MicroCommandBodyResult;
     const evalResult = json.results[0] as MicroCommandAddinEvalResult;
-    expect(evalResult.values.error).toContain("Invalid regular expression flags");
+    const errorObject = getErrorObject(evalResult);
+    expect(errorObject.name).toBe("SyntaxError");
+    expect(errorObject.message).toBe("Unexpected end of input");
+    expect(errorObject.stack).toBeDefined();
+});
+
+test("Run Standard Eval - invalid.js 2", async ({ request }) => {
+    const code = `
+(async () => {
+    throw new Error("Test error");
+})();
+`;
+    await runStandardOpen(request);
+    const result = await runStandardEval(request, code);
+    await runStandardClose(request);
+    const jsonBody = await result.text();
+    console.log(jsonBody);
+    const json = JSON.parse(jsonBody) as MicroCommandBodyResult;
+    const evalResult = json.results[0] as MicroCommandAddinEvalResult;
+    expect(evalResult.values.error).toBeDefined();
+    assert(typeof evalResult.values.error === "string");
+    const errorObject = JSON.parse(evalResult.values.error);
+    expect(errorObject.name).toBe("Error");
+    expect(errorObject.message).toBe("Test error");
+    expect(errorObject.stack).toBeDefined();
 });
