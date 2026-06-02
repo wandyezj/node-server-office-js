@@ -10,6 +10,8 @@ import {
     MicroCommandMetadataServerVersionResult,
     MicroCommandName,
     MicroCommandReadFileContentsResult,
+    MicroCommandResult,
+    MicroCommandResultWithMetadata,
 } from "../src/server/handlers/microCommand/MicroCommand";
 import packageJson from "../package.json";
 import assert from "node:assert";
@@ -42,6 +44,10 @@ const defaultFileOutPath = path
 
 function getCodeFile(fileName: string) {
     return path.normalize(path.join(defaultCodeFileDirectory, fileName)).replace(/\\/g, "/");
+}
+
+function getCodeFromFile(filePath: string) {
+    return readFileSync(getCodeFile(filePath), "utf-8");
 }
 
 const defaultCodeFilePath = getCodeFile("hello-world-excel.js");
@@ -91,6 +97,14 @@ async function runMicroCommands(
     }
 
     return message;
+}
+
+function getResultByCommandId(message: MicroCommandBodyResult, id: string): MicroCommandResult {
+    const result = message.results.find((r) => r.id === id);
+    if (!result) {
+        throw new Error(`No result found for command ID: ${id}`);
+    }
+    return result;
 }
 
 test("Run Micro Command - Console", async ({ request }) => {
@@ -419,6 +433,96 @@ test("Run Micro Commands - Open, Eval, SaveAs, Close", async ({ request }) => {
             }),
         );
     });
+
+    console.log(JSON.stringify(message));
+});
+
+test("Run Micro Commands - Eval return value", async ({ request }) => {
+    cleanOutDirectory();
+    const logFilePath = getDefaultLogFilePath();
+
+    const code1Id = "code1";
+    const code2Id = "code2";
+    const code1 = getCodeFromFile("excel-set-a1.js");
+    const code2 = getCodeFromFile("excel-get-a1.js");
+
+    const microCommandBody: MicroCommandBody = {
+        commands: [
+            {
+                name: MicroCommandName.StartLog,
+                parameters: {
+                    filePath: logFilePath,
+                },
+            },
+            {
+                name: MicroCommandName.ForceCloseExcel,
+            },
+            {
+                name: MicroCommandName.OpenExcelFile,
+                parameters: {
+                    filePath: defaultFilePath,
+                },
+            },
+            {
+                id: code1Id,
+                name: MicroCommandName.AddinEval,
+                parameters: {
+                    code: code1,
+                },
+            },
+            {
+                id: code2Id,
+                name: MicroCommandName.AddinEval,
+                parameters: {
+                    code: code2,
+                },
+            },
+            {
+                name: MicroCommandName.SaveExcelFile,
+                parameters: {
+                    filePath: defaultFileOutPath,
+                },
+            },
+            {
+                name: MicroCommandName.CloseExcelFile,
+                parameters: {
+                    filePath: defaultFilePath,
+                },
+            },
+            {
+                name: MicroCommandName.EndLog,
+            },
+        ],
+    };
+
+    const message = await runMicroCommands(request, microCommandBody.commands);
+
+    // Check each command for success
+    message.results.forEach((value, index) => {
+        const joined = {
+            result: value,
+            command: microCommandBody.commands[index],
+        };
+        expect(joined).toEqual(
+            expect.objectContaining({
+                result: expect.objectContaining({
+                    success: true,
+                }),
+            }),
+        );
+    });
+
+    const code1Result = getResultByCommandId(message, code1Id) as MicroCommandAddinEvalResult;
+    const code2Result = getResultByCommandId(message, code2Id) as MicroCommandAddinEvalResult;
+
+    const code1ResultValue = code1Result.values.result;
+    const code2ResultValue = code2Result.values.result;
+
+    expect(code1Result.values.error).toBe(undefined);
+    expect(code2Result.values.error).toBe(undefined);
+
+    expect(code1ResultValue).toBe(undefined);
+    expect(code2ResultValue).toBe(5);
 
     console.log(JSON.stringify(message));
 });
