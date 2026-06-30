@@ -622,3 +622,25 @@ test("Run Standard Eval - invalid.js 2", async ({ request }) => {
     expect(errorObject.message).toBe("Test error");
     expect(errorObject.stack).toBeDefined();
 });
+
+test("Run Standard Eval - return object", async ({ request }) => {
+    const filePath = getCodeFile("return-object.js");
+    const code = readFileSync(filePath, "utf-8");
+
+    await runStandardOpen(request);
+    const result = await runStandardEval(request, code);
+    await runStandardClose(request);
+    const jsonBody = await result.text();
+    console.log(jsonBody);
+    const json = JSON.parse(jsonBody) as MicroCommandBodyResult;
+    const evalResult = json.results[0] as MicroCommandAddinEvalResult;
+    expect(evalResult.values.error).toBeUndefined();
+    expect(evalResult.values.result).toBeDefined();
+
+    // Check result
+    const resultObject = JSON.parse(evalResult.values.result);
+    expect(resultObject.keyString).toBe("value");
+    expect(resultObject.keyNumber).toBe(2);
+    expect(resultObject.keyObject).toBeDefined();
+    expect(resultObject.keyObject.nestedKey).toBe("nestedValue");
+});
