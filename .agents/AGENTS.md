@@ -1,18 +1,23 @@
-# Project Guidelines
+# Agent Instructions
 
-## Code Style
+## Coding Preferences
+
 - Use TypeScript with strict typing (see tsconfig.json).
 - Prefer Node built-in imports with the node: prefix (example: src/index.ts).
 - Keep server responses explicit about status and content type.
 - Avoid repeating identical constant strings; assign them to a local constant or shared constant when reused.
 - Prefer the positive case in if statements.
+- Use ECMAScript `#` private class members instead of TypeScript `private` when declaring private class fields or methods.
+- Prefer the `Promise.withResolvers()` pattern instead of manually constructing promises with `new Promise((resolve, reject) => ...)` where practical.
 
 ## Architecture
+
 - Keep this repository as a minimal Node HTTP server scaffold centered on src/index.ts.
 - Treat src/ as source of truth and dist/ as generated build output from tsc.
 - Keep Playwright test configuration in configs/playwright.config.ts and tests in test/.
 
 ## Build and Test
+
 - Install dependencies: npm install
 - Build: npm run compile
 - Start server: npm start
@@ -20,10 +25,12 @@
 - Run tests in UI mode: npm run test:ui
 
 ## Conventions
+
 - Default server port is 3000 unless PORT is set.
 - Keep endpoint behavior stable unless task explicitly requests API changes; current root endpoint returns plain text Hello World.
 - When updating test behavior, align with Playwright webServer settings in configs/playwright.config.ts.
 - Prefer integration coverage for HTTP behavior using Playwright request tests similar to test/test.ts.
 
 ## Documentation
+
 - Use README.md for setup and quick-start details rather than duplicating long instructions here.

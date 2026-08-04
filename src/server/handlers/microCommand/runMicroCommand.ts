@@ -18,6 +18,12 @@ import { runMicroCommandForceCloseExcel } from "./runMicroCommandForceCloseExcel
 import { runMicroCommandReadFileContents } from "./runMicroCommandReadFileContents";
 import { runMicroCommandMetadataNodeVersion } from "./runMicroCommandMetadataNodeVersion";
 import { runMicroCommandMetadataServerVersion } from "./runMicroCommandMetadataServerVersion";
+import { runMicroCommandWebsocketServerOpen } from "./runMicroCommandWebsocketServerOpen";
+import { runMicroCommandWebsocketServerAwaitConnection } from "./runMicroCommandWebsocketServerAwaitConnection";
+import { runMicroCommandWebsocketServerSendMessage } from "./runMicroCommandWebsocketServerSendMessage";
+import { runMicroCommandWebsocketServerAwaitMessage } from "./runMicroCommandWebsocketServerAwaitMessage";
+import { runMicroCommandWebsocketServerTakeMessages } from "./runMicroCommandWebsocketServerTakeMessages";
+import { runMicroCommandWebsocketServerClose } from "./runMicroCommandWebsocketServerClose";
 
 type MicroCommandHandler<Name extends MicroCommandName> = (
     command: Extract<MicroCommand, { name: Name }>,
@@ -43,6 +49,13 @@ const microCommandHandlers = {
     [MicroCommandName.ReadFileContents]: runMicroCommandReadFileContents,
     [MicroCommandName.MetadataNodeVersion]: runMicroCommandMetadataNodeVersion,
     [MicroCommandName.MetadataServerVersion]: runMicroCommandMetadataServerVersion,
+    [MicroCommandName.WebsocketServerOpen]: runMicroCommandWebsocketServerOpen,
+    [MicroCommandName.WebsocketServerAwaitConnection]:
+        runMicroCommandWebsocketServerAwaitConnection,
+    [MicroCommandName.WebsocketServerSendMessage]: runMicroCommandWebsocketServerSendMessage,
+    [MicroCommandName.WebsocketServerAwaitMessage]: runMicroCommandWebsocketServerAwaitMessage,
+    [MicroCommandName.WebsocketServerTakeMessages]: runMicroCommandWebsocketServerTakeMessages,
+    [MicroCommandName.WebsocketServerClose]: runMicroCommandWebsocketServerClose,
 } satisfies { [Name in MicroCommandName]: MicroCommandHandler<Name> };
 
 function getMicroCommandHandler<Name extends MicroCommandName>(

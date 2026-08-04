@@ -1,6 +1,8 @@
 import { APIRequestContext, expect, test } from "@playwright/test";
 import { existsSync, mkdirSync, readFileSync, unlinkSync } from "node:fs";
+import * as net from "node:net";
 import * as path from "node:path";
+import { WebSocket } from "ws";
 import {
     MicroCommand,
     MicroCommandAddinEvalResult,
@@ -12,6 +14,7 @@ import {
     MicroCommandReadFileContentsResult,
     MicroCommandResult,
     MicroCommandResultWithMetadata,
+    MicroCommandWebsocketServerTakeMessagesResult,
 } from "../src/server/handlers/microCommand/MicroCommand";
 import packageJson from "../package.json";
 import assert from "node:assert";
@@ -105,6 +108,70 @@ function getResultByCommandId(message: MicroCommandBodyResult, id: string): Micr
         throw new Error(`No result found for command ID: ${id}`);
     }
     return result;
+}
+
+async function getAvailablePort(): Promise<number> {
+    const server = net.createServer();
+    const listening = Promise.withResolvers<void>();
+    server.listen(0, listening.resolve);
+    await listening.promise;
+    const address = server.address();
+    const closed = Promise.withResolvers<void>();
+    server.close((error) => {
+        if (error) {
+            closed.reject(error);
+            return;
+        }
+        closed.resolve();
+    });
+    await closed.promise;
+
+    if (!address || typeof address === "string") {
+        throw new Error("Failed to find an available port.");
+    }
+
+    return address.port;
+}
+
+function connectWebsocket(
+    port: number,
+    timeoutMs: number = 5000,
+): Promise<{
+    socket: WebSocket;
+    receivedMessage: Promise<string>;
+}> {
+    const deadline = Date.now() + timeoutMs;
+    const connection = Promise.withResolvers<{
+        socket: WebSocket;
+        receivedMessage: Promise<string>;
+    }>();
+
+    function attemptConnection(): void {
+        const socket = new WebSocket(`ws://127.0.0.1:${port}`);
+        const receivedMessage = Promise.withResolvers<string>();
+        const retryTimeoutMs = 25;
+
+        socket.once("message", (data) => receivedMessage.resolve(`${data}`));
+        socket.once("open", () => {
+            socket.off("error", handleConnectionError);
+            socket.once("error", receivedMessage.reject);
+            connection.resolve({ socket, receivedMessage: receivedMessage.promise });
+        });
+
+        function handleConnectionError(error: Error): void {
+            socket.close();
+            if (Date.now() >= deadline) {
+                connection.reject(error);
+                return;
+            }
+            setTimeout(attemptConnection, retryTimeoutMs);
+        }
+
+        socket.once("error", handleConnectionError);
+    }
+
+    attemptConnection();
+    return connection.promise;
 }
 
 test("Run Micro Command - Console", async ({ request }) => {
@@ -559,6 +626,53 @@ test("Run Micro Command - MetadataServerVersion", async ({ request }) => {
     ]);
     const result = message.results[0] as MicroCommandMetadataServerVersionResult;
     expect(result.values.version).toBe(packageJson.version);
+});
+
+test("Run Micro Commands - Websocket", async ({ request }) => {
+    const port = await getAvailablePort();
+    let socket: WebSocket | undefined;
+
+    try {
+        const microCommands = runMicroCommands(request, [
+            {
+                name: MicroCommandName.WebsocketServerOpen,
+                parameters: { port },
+            },
+            {
+                name: MicroCommandName.WebsocketServerAwaitConnection,
+                parameters: { port, timeoutMs: 5000 },
+            },
+            {
+                name: MicroCommandName.WebsocketServerSendMessage,
+                parameters: { port, message: "hello client" },
+            },
+            {
+                name: MicroCommandName.WebsocketServerAwaitMessage,
+                parameters: { port, timeoutMs: 5000 },
+            },
+            {
+                name: MicroCommandName.WebsocketServerTakeMessages,
+                parameters: { port },
+            },
+            {
+                name: MicroCommandName.WebsocketServerClose,
+                parameters: { port },
+            },
+        ]);
+
+        const connection = await connectWebsocket(port);
+        socket = connection.socket;
+
+        expect(await connection.receivedMessage).toBe("hello client");
+        socket.send("hello server");
+
+        const message = await microCommands;
+
+        const takeResult = message.results[4] as MicroCommandWebsocketServerTakeMessagesResult;
+        expect(takeResult.values.messages).toEqual(["hello server"]);
+    } finally {
+        socket?.close();
+    }
 });
 
 test("Run Micro Commands - reports aggregate failure", async ({ request }) => {

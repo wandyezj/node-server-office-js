@@ -17,6 +17,12 @@ export enum MicroCommandName {
     ReadFileContents = "ReadFileContents",
     MetadataNodeVersion = "MetadataNodeVersion",
     MetadataServerVersion = "MetadataServerVersion",
+    WebsocketServerOpen = "WebsocketServerOpen",
+    WebsocketServerAwaitConnection = "WebsocketServerAwaitConnection",
+    WebsocketServerSendMessage = "WebsocketServerSendMessage",
+    WebsocketServerAwaitMessage = "WebsocketServerAwaitMessage",
+    WebsocketServerTakeMessages = "WebsocketServerTakeMessages",
+    WebsocketServerClose = "WebsocketServerClose",
 }
 
 export interface MicroCommandBase {
@@ -278,6 +284,100 @@ export interface MicroCommandMetadataServerVersionResult extends MicroCommandBas
     };
 }
 
+/**
+ * Open a generic websocket server on the specified port.
+ */
+export interface MicroCommandWebsocketServerOpen extends MicroCommandBase {
+    name: MicroCommandName.WebsocketServerOpen;
+    parameters: {
+        port: number;
+    };
+}
+
+export interface MicroCommandWebsocketServerOpenResult extends MicroCommandBaseResult {
+    success: true;
+    values: {
+        port: number;
+    };
+}
+
+/**
+ * Wait until a client is connected to a generic websocket server.
+ */
+export interface MicroCommandWebsocketServerAwaitConnection extends MicroCommandBase {
+    name: MicroCommandName.WebsocketServerAwaitConnection;
+    parameters: {
+        port: number;
+        timeoutMs?: number;
+    };
+}
+
+export interface MicroCommandWebsocketServerAwaitConnectionResult extends MicroCommandBaseResult {
+    success: true;
+}
+
+/**
+ * Send a message to all clients connected to a generic websocket server.
+ */
+export interface MicroCommandWebsocketServerSendMessage extends MicroCommandBase {
+    name: MicroCommandName.WebsocketServerSendMessage;
+    parameters: {
+        port: number;
+        message: string;
+    };
+}
+
+export interface MicroCommandWebsocketServerSendMessageResult extends MicroCommandBaseResult {
+    success: true;
+}
+
+/**
+ * Wait until a new message is received and added to the message queue.
+ */
+export interface MicroCommandWebsocketServerAwaitMessage extends MicroCommandBase {
+    name: MicroCommandName.WebsocketServerAwaitMessage;
+    parameters: {
+        port: number;
+        timeoutMs?: number;
+    };
+}
+
+export interface MicroCommandWebsocketServerAwaitMessageResult extends MicroCommandBaseResult {
+    success: true;
+}
+
+/**
+ * Take all queued messages from a generic websocket server.
+ */
+export interface MicroCommandWebsocketServerTakeMessages extends MicroCommandBase {
+    name: MicroCommandName.WebsocketServerTakeMessages;
+    parameters: {
+        port: number;
+    };
+}
+
+export interface MicroCommandWebsocketServerTakeMessagesResult extends MicroCommandBaseResult {
+    success: true;
+    values: {
+        port: number;
+        messages: string[];
+    };
+}
+
+/**
+ * Close a generic websocket server on the specified port.
+ */
+export interface MicroCommandWebsocketServerClose extends MicroCommandBase {
+    name: MicroCommandName.WebsocketServerClose;
+    parameters: {
+        port: number;
+    };
+}
+
+export interface MicroCommandWebsocketServerCloseResult extends MicroCommandBaseResult {
+    success: true;
+}
+
 // Aggregates
 
 export interface MicroCommandResultError extends MicroCommandBaseResult {
@@ -303,7 +403,13 @@ export type MicroCommand =
     | MicroCommandForceCloseExcel
     | MicroCommandReadFileContents
     | MicroCommandMetadataNodeVersion
-    | MicroCommandMetadataServerVersion;
+    | MicroCommandMetadataServerVersion
+    | MicroCommandWebsocketServerOpen
+    | MicroCommandWebsocketServerAwaitConnection
+    | MicroCommandWebsocketServerSendMessage
+    | MicroCommandWebsocketServerAwaitMessage
+    | MicroCommandWebsocketServerTakeMessages
+    | MicroCommandWebsocketServerClose;
 
 export type MicroCommandResult =
     | MicroCommandResultError
@@ -324,7 +430,13 @@ export type MicroCommandResult =
     | MicroCommandForceCloseExcelResult
     | MicroCommandReadFileContentsResult
     | MicroCommandMetadataNodeVersionResult
-    | MicroCommandMetadataServerVersionResult;
+    | MicroCommandMetadataServerVersionResult
+    | MicroCommandWebsocketServerOpenResult
+    | MicroCommandWebsocketServerAwaitConnectionResult
+    | MicroCommandWebsocketServerSendMessageResult
+    | MicroCommandWebsocketServerAwaitMessageResult
+    | MicroCommandWebsocketServerTakeMessagesResult
+    | MicroCommandWebsocketServerCloseResult;
 
 export type MicroCommandResultWithMetadata = MicroCommandResult & {
     metrics: {
