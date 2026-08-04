@@ -6,6 +6,8 @@ export enum MicroCommandName {
     EndLog = "EndLog",
     AddinPing = "AddinPing",
     AddinEval = "AddinEval",
+    OpenOfficeFile = "OpenOfficeFile",
+    CloseOfficeFile = "CloseOfficeFile",
     OpenExcelFile = "OpenExcelFile",
     CloseExcelFile = "CloseExcelFile",
     SaveExcelFile = "SaveExcelFile",
@@ -23,6 +25,12 @@ export enum MicroCommandName {
     WebsocketServerAwaitMessage = "WebsocketServerAwaitMessage",
     WebsocketServerTakeMessages = "WebsocketServerTakeMessages",
     WebsocketServerClose = "WebsocketServerClose",
+}
+
+export enum OfficeAppName {
+    Excel = "Excel",
+    Word = "Word",
+    PowerPoint = "PowerPoint",
 }
 
 export interface MicroCommandBase {
@@ -127,6 +135,40 @@ export interface MicroCommandAddinEvalResult extends MicroCommandBaseResult {
         error?: string;
         result?: any;
     };
+}
+
+/**
+ * Open an Office app file.
+ */
+export interface MicroCommandOpenOfficeFile extends MicroCommandBase {
+    name: MicroCommandName.OpenOfficeFile;
+    parameters: {
+        filePath: string;
+        app: OfficeAppName;
+    };
+}
+
+export interface MicroCommandOpenOfficeFileResult extends MicroCommandBaseResult {
+    success: true;
+    values: {
+        id: number | undefined;
+    };
+}
+
+/**
+ * Close an Office app file by process ID or source file path.
+ */
+export interface MicroCommandCloseOfficeFile extends MicroCommandBase {
+    name: MicroCommandName.CloseOfficeFile;
+    parameters: {
+        app: OfficeAppName;
+        id?: number;
+        filePath?: string;
+    };
+}
+
+export interface MicroCommandCloseOfficeFileResult extends MicroCommandBaseResult {
+    success: true;
 }
 
 /**
@@ -393,6 +435,8 @@ export type MicroCommand =
     | MicroCommandEndLog
     | MicroCommandAddinPing
     | MicroCommandAddinEval
+    | MicroCommandOpenOfficeFile
+    | MicroCommandCloseOfficeFile
     | MicroCommandOpenExcelFile
     | MicroCommandCloseExcelFile
     | MicroCommandSaveExcelFile
@@ -420,6 +464,8 @@ export type MicroCommandResult =
     | MicroCommandEndLogResult
     | MicroCommandAddinPingResult
     | MicroCommandAddinEvalResult
+    | MicroCommandOpenOfficeFileResult
+    | MicroCommandCloseOfficeFileResult
     | MicroCommandOpenExcelFileResult
     | MicroCommandCloseExcelFileResult
     | MicroCommandSaveExcelFileResult

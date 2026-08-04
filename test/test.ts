@@ -11,6 +11,7 @@ import {
     MicroCommandMetadataNodeVersionResult,
     MicroCommandMetadataServerVersionResult,
     MicroCommandName,
+    OfficeAppName,
     MicroCommandReadFileContentsResult,
     MicroCommandResult,
     MicroCommandResultWithMetadata,
@@ -252,6 +253,25 @@ test("Run Micro Command - Open Excel File", async ({ request }) => {
         },
     ]);
 });
+
+// test("Run Micro Command - Open Office File (Excel)", async ({ request }) => {
+//     await runMicroCommands(request, [
+//         {
+//             name: MicroCommandName.OpenOfficeFile,
+//             parameters: {
+//                 app: OfficeAppName.Excel,
+//                 filePath: defaultFilePath,
+//             },
+//         },
+//         {
+//             name: MicroCommandName.CloseOfficeFile,
+//             parameters: {
+//                 app: OfficeAppName.Excel,
+//                 filePath: defaultFilePath,
+//             },
+//         },
+//     ]);
+// });
 
 test("Run Micro Command - Eval", async ({ request }) => {
     const code = readFileSync(defaultCodeFilePath, "utf-8");

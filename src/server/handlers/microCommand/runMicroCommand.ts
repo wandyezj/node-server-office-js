@@ -2,10 +2,12 @@ import { globalLog } from "../../globalLog";
 import { MicroCommand, MicroCommandResult, MicroCommandName } from "./MicroCommand";
 import { runMicroCommandAddinEval } from "./runMicroCommandAddinEval";
 import { runMicroCommandAddinPing } from "./runMicroCommandAddinPing";
+import { runMicroCommandCloseOfficeFile } from "./runMicroCommandCloseOfficeFile";
 import { runMicroCommandCloseExcelFile } from "./runMicroCommandCloseExcelFile";
 import { runMicroCommandConsole } from "./runMicroCommandConsole";
 import { runMicroCommandEndConsole } from "./runMicroCommandEndConsole";
 import { runMicroCommandEndLog } from "./runMicroCommandEndLog";
+import { runMicroCommandOpenOfficeFile } from "./runMicroCommandOpenOfficeFile";
 import { runMicroCommandOpenExcelFile } from "./runMicroCommandOpenExcelFile";
 import { runMicroCommandSaveExcelFile } from "./runMicroCommandSaveExcelFile";
 import { runMicroCommandStartConsole } from "./runMicroCommandStartConsole";
@@ -37,6 +39,8 @@ const microCommandHandlers = {
     [MicroCommandName.EndLog]: runMicroCommandEndLog,
     [MicroCommandName.AddinPing]: runMicroCommandAddinPing,
     [MicroCommandName.AddinEval]: runMicroCommandAddinEval,
+    [MicroCommandName.OpenOfficeFile]: runMicroCommandOpenOfficeFile,
+    [MicroCommandName.CloseOfficeFile]: runMicroCommandCloseOfficeFile,
     [MicroCommandName.OpenExcelFile]: runMicroCommandOpenExcelFile,
     [MicroCommandName.CloseExcelFile]: runMicroCommandCloseExcelFile,
     [MicroCommandName.SaveExcelFile]: runMicroCommandSaveExcelFile,
