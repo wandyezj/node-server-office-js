@@ -1,6 +1,6 @@
-# node-server-office-js
+# node-server-tool
 
-Node server to execute office.js on an Office Document.
+Node server to execute office.js on an Office Document and to provide other tools.
 
 ## Hello World Server
 

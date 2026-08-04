@@ -1,4 +1,3 @@
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
@@ -103,6 +102,7 @@ module.exports = async (env, options) => {
         output: {
             filename: "[name].bundle.js",
             path: outputPath,
+            clean: true
         },
         resolve: {
             extensions: [".ts", ".json", ".js"],
@@ -116,7 +116,7 @@ module.exports = async (env, options) => {
             rules: [{ test: /\.(ts|tsx)$/, loader: "ts-loader" }],
         },
         watch: isDevelopment,
-        plugins: [new CleanWebpackPlugin()],
+        plugins: [],
     };
 
     if (serverConfigJson.https.enabled) {

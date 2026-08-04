@@ -44,7 +44,6 @@
         "@types/node": "^22.15.2",
         "@types/office-js": "^1.0.587",
         "@types/ws": "^8.18.1",
-        "clean-webpack-plugin": "^4.0.0",
         "copy-webpack-plugin": "^14.0.0",
         "html-webpack-plugin": "^5.6.6",
         "office-addin-dev-certs": "^1.9.1",
@@ -58,7 +57,7 @@
     "dependencies": {
         "@prettier/plugin-xml": "^3.4.2",
         "@xmldom/xmldom": "^0.9.9",
-        "adm-zip": "^0.5.17",
+        "adm-zip": "^0.6.0",
         "ws": "^8.20.0"
     }
 }
