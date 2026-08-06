@@ -1,9 +1,12 @@
 import { globalProcesses } from "../../globalProcesses";
-import { MicroCommandCloseOfficeFile, MicroCommandCloseOfficeFileResult } from "./MicroCommand";
+import {
+    MicroCommandOfficeDocumentClose,
+    MicroCommandOfficeDocumentCloseResult,
+} from "./MicroCommand";
 
-export async function runMicroCommandCloseOfficeFile(
-    command: MicroCommandCloseOfficeFile,
-): Promise<MicroCommandCloseOfficeFileResult> {
+export async function runMicroCommandOfficeDocumentClose(
+    command: MicroCommandOfficeDocumentClose,
+): Promise<MicroCommandOfficeDocumentCloseResult> {
     const { app, id, filePath } = command.parameters;
     const targetPids: number[] = [];
 
@@ -16,7 +19,7 @@ export async function runMicroCommandCloseOfficeFile(
             continue;
         }
 
-        if (filePath !== undefined && metadata.filePathSource !== filePath) {
+        if (filePath !== undefined && metadata.filePathOpen !== filePath) {
             continue;
         }
 

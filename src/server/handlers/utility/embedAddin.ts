@@ -4,13 +4,35 @@ import { DOMParser, XMLSerializer } from "@xmldom/xmldom";
 import { writeManifestToRegistry } from "./writeManifestToRegistry";
 import { globalLog } from "../../globalLog";
 
+function escapeXmlAttribute(s: string): string {
+    return s
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&apos;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
+function getEmbedSettings(settings: Record<string, string | number | boolean>): string {
+    const key = "settings";
+    const value = JSON.stringify(settings);
+    return `<we:property name="${key}" value="${escapeXmlAttribute(value)}"/>`;
+}
+
 /**
  * Sideloads an Office.js Add-in into an Excel file.
  * @param {string} excelPath - Path to the source .xlsx file
  * @param {string} manifestPath - Path to the Add-in Manifest XML
  * @param {string} outputPath - Path where the modified .xlsx will be saved
  */
-export function embedAddIn(excelPath: string, manifestPath: string, outputPath: string) {
+export function embedAddIn(
+    excelPath: string,
+    manifestPath: string,
+    outputPath: string,
+    options?: {
+        settings?: Record<string, string | number | boolean>;
+    },
+) {
     const zip = new AdmZip(excelPath);
     const serializer = new XMLSerializer();
     const parser = new DOMParser();
@@ -33,7 +55,7 @@ export function embedAddIn(excelPath: string, manifestPath: string, outputPath: 
   <we:reference id="${addInId}" version="${version}" store="developer" storeType="Registry"/>
   <we:alternateReferences/>
   <we:properties>
-    <we:property name="Office.AutoShowTaskpaneWithDocument" value="true"/>
+    <we:property name="Office.AutoShowTaskpaneWithDocument" value="true"/>${options?.settings ? "\n    " + getEmbedSettings(options.settings) : ""}
   </we:properties>
   <we:bindings/><we:snapshot xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/>
 </we:webextension>

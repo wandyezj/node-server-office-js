@@ -1,14 +1,14 @@
 import { globalProcesses } from "../../globalProcesses";
 import {
-    MicroCommandOpenOfficeFile,
-    MicroCommandOpenOfficeFileResult,
+    MicroCommandOfficeDocumentOpen,
+    MicroCommandOfficeDocumentOpenResult,
     MicroCommandResultError,
 } from "./MicroCommand";
 import { getOfficeAppPath } from "../utility/getOfficeAppPath";
 
-export function runMicroCommandOpenOfficeFile(
-    command: MicroCommandOpenOfficeFile,
-): MicroCommandOpenOfficeFileResult | MicroCommandResultError {
+export function runMicroCommandOfficeDocumentOpen(
+    command: MicroCommandOfficeDocumentOpen,
+): MicroCommandOfficeDocumentOpenResult | MicroCommandResultError {
     const { app, filePath } = command.parameters;
 
     const appPath = getOfficeAppPath(app);
@@ -19,7 +19,6 @@ export function runMicroCommandOpenOfficeFile(
 
     const id = globalProcesses.spawn(appPath, [filePath], {
         tag: app,
-        filePathSource: filePath,
         filePathOpen: filePath,
     });
 

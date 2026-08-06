@@ -2,12 +2,13 @@ import { globalLog } from "../../globalLog";
 import { MicroCommand, MicroCommandResult, MicroCommandName } from "./MicroCommand";
 import { runMicroCommandAddinEval } from "./runMicroCommandAddinEval";
 import { runMicroCommandAddinPing } from "./runMicroCommandAddinPing";
-import { runMicroCommandCloseOfficeFile } from "./runMicroCommandCloseOfficeFile";
+import { runMicroCommandOfficeDocumentClose } from "./runMicroCommandOfficeDocumentClose";
 import { runMicroCommandCloseExcelFile } from "./runMicroCommandCloseExcelFile";
 import { runMicroCommandConsole } from "./runMicroCommandConsole";
+import { runMicroCommandDebugger } from "./runMicroCommandDebugger";
 import { runMicroCommandEndConsole } from "./runMicroCommandEndConsole";
 import { runMicroCommandEndLog } from "./runMicroCommandEndLog";
-import { runMicroCommandOpenOfficeFile } from "./runMicroCommandOpenOfficeFile";
+import { runMicroCommandOfficeDocumentOpen } from "./runMicroCommandOfficeDocumentOpen";
 import { runMicroCommandOpenExcelFile } from "./runMicroCommandOpenExcelFile";
 import { runMicroCommandSaveExcelFile } from "./runMicroCommandSaveExcelFile";
 import { runMicroCommandStartConsole } from "./runMicroCommandStartConsole";
@@ -18,6 +19,8 @@ import { runMicroCommandPowerShellCloseExcelFile } from "./runMicroCommandPowerS
 import { runMicroCommandPowerShellSaveActiveWorkbookAs } from "./runMicroCommandPowerShellSaveActiveWorkbookAs";
 import { runMicroCommandForceCloseExcel } from "./runMicroCommandForceCloseExcel";
 import { runMicroCommandReadFileContents } from "./runMicroCommandReadFileContents";
+import { runMicroCommandOfficeDocumentEmbedAddIn } from "./runMicroCommandOfficeDocumentEmbedAddIn";
+import { runMicroCommandOfficeDocumentExtractAddIn } from "./runMicroCommandOfficeDocumentExtractAddIn";
 import { runMicroCommandMetadataNodeVersion } from "./runMicroCommandMetadataNodeVersion";
 import { runMicroCommandMetadataServerVersion } from "./runMicroCommandMetadataServerVersion";
 import { runMicroCommandWebsocketServerOpen } from "./runMicroCommandWebsocketServerOpen";
@@ -31,31 +34,34 @@ type MicroCommandHandler<Name extends MicroCommandName> = (
     command: Extract<MicroCommand, { name: Name }>,
 ) => MicroCommandResult | Promise<MicroCommandResult>;
 
+// Keep commands in alphabetical order for easier maintenance.
+// prettier-ignore
 const microCommandHandlers = {
-    [MicroCommandName.Console]: runMicroCommandConsole,
-    [MicroCommandName.StartConsole]: runMicroCommandStartConsole,
-    [MicroCommandName.EndConsole]: runMicroCommandEndConsole,
-    [MicroCommandName.StartLog]: runMicroCommandStartLog,
-    [MicroCommandName.EndLog]: runMicroCommandEndLog,
-    [MicroCommandName.AddinPing]: runMicroCommandAddinPing,
     [MicroCommandName.AddinEval]: runMicroCommandAddinEval,
-    [MicroCommandName.OpenOfficeFile]: runMicroCommandOpenOfficeFile,
-    [MicroCommandName.CloseOfficeFile]: runMicroCommandCloseOfficeFile,
-    [MicroCommandName.OpenExcelFile]: runMicroCommandOpenExcelFile,
+    [MicroCommandName.AddinPing]: runMicroCommandAddinPing,
     [MicroCommandName.CloseExcelFile]: runMicroCommandCloseExcelFile,
-    [MicroCommandName.SaveExcelFile]: runMicroCommandSaveExcelFile,
-    [MicroCommandName.PowerShellOpenExcelFile]: runMicroCommandPowerShellOpenExcelFile,
-    [MicroCommandName.PowerShellSaveExcelFile]: runMicroCommandPowerShellSaveExcelFile,
-    [MicroCommandName.PowerShellCloseExcelFile]: runMicroCommandPowerShellCloseExcelFile,
-    [MicroCommandName.PowerShellSaveActiveWorkbookAs]:
-        runMicroCommandPowerShellSaveActiveWorkbookAs,
+    [MicroCommandName.Console]: runMicroCommandConsole,
+    [MicroCommandName.Debugger]: runMicroCommandDebugger,
+    [MicroCommandName.EndConsole]: runMicroCommandEndConsole,
+    [MicroCommandName.EndLog]: runMicroCommandEndLog,
     [MicroCommandName.ForceCloseExcel]: runMicroCommandForceCloseExcel,
-    [MicroCommandName.ReadFileContents]: runMicroCommandReadFileContents,
     [MicroCommandName.MetadataNodeVersion]: runMicroCommandMetadataNodeVersion,
     [MicroCommandName.MetadataServerVersion]: runMicroCommandMetadataServerVersion,
+    [MicroCommandName.OfficeDocumentClose]: runMicroCommandOfficeDocumentClose,
+    [MicroCommandName.OfficeDocumentEmbedAddIn]: runMicroCommandOfficeDocumentEmbedAddIn,
+    [MicroCommandName.OfficeDocumentExtractAddIn]: runMicroCommandOfficeDocumentExtractAddIn,
+    [MicroCommandName.OfficeDocumentOpen]: runMicroCommandOfficeDocumentOpen,
+    [MicroCommandName.OpenExcelFile]: runMicroCommandOpenExcelFile,
+    [MicroCommandName.PowerShellCloseExcelFile]: runMicroCommandPowerShellCloseExcelFile,
+    [MicroCommandName.PowerShellOpenExcelFile]: runMicroCommandPowerShellOpenExcelFile,
+    [MicroCommandName.PowerShellSaveActiveWorkbookAs]: runMicroCommandPowerShellSaveActiveWorkbookAs,
+    [MicroCommandName.PowerShellSaveExcelFile]: runMicroCommandPowerShellSaveExcelFile,
+    [MicroCommandName.ReadFileContents]: runMicroCommandReadFileContents,
+    [MicroCommandName.SaveExcelFile]: runMicroCommandSaveExcelFile,
+    [MicroCommandName.StartConsole]: runMicroCommandStartConsole,
+    [MicroCommandName.StartLog]: runMicroCommandStartLog,
     [MicroCommandName.WebsocketServerOpen]: runMicroCommandWebsocketServerOpen,
-    [MicroCommandName.WebsocketServerAwaitConnection]:
-        runMicroCommandWebsocketServerAwaitConnection,
+    [MicroCommandName.WebsocketServerAwaitConnection]: runMicroCommandWebsocketServerAwaitConnection,
     [MicroCommandName.WebsocketServerSendMessage]: runMicroCommandWebsocketServerSendMessage,
     [MicroCommandName.WebsocketServerAwaitMessage]: runMicroCommandWebsocketServerAwaitMessage,
     [MicroCommandName.WebsocketServerTakeMessages]: runMicroCommandWebsocketServerTakeMessages,

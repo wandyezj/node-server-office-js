@@ -1,13 +1,14 @@
 export enum MicroCommandName {
     Console = "Console",
+    Debugger = "Debugger",
     StartConsole = "StartConsole",
     EndConsole = "EndConsole",
     StartLog = "StartLog",
     EndLog = "EndLog",
     AddinPing = "AddinPing",
     AddinEval = "AddinEval",
-    OpenOfficeFile = "OpenOfficeFile",
-    CloseOfficeFile = "CloseOfficeFile",
+    OfficeDocumentOpen = "OfficeDocumentOpen",
+    OfficeDocumentClose = "OfficeDocumentClose",
     OpenExcelFile = "OpenExcelFile",
     CloseExcelFile = "CloseExcelFile",
     SaveExcelFile = "SaveExcelFile",
@@ -17,6 +18,8 @@ export enum MicroCommandName {
     PowerShellSaveActiveWorkbookAs = "PowerShellSaveActiveWorkbookAs",
     ForceCloseExcel = "ForceCloseExcel",
     ReadFileContents = "ReadFileContents",
+    OfficeDocumentEmbedAddIn = "OfficeDocumentEmbedAddIn",
+    OfficeDocumentExtractAddIn = "OfficeDocumentExtractAddIn",
     MetadataNodeVersion = "MetadataNodeVersion",
     MetadataServerVersion = "MetadataServerVersion",
     WebsocketServerOpen = "WebsocketServerOpen",
@@ -56,6 +59,17 @@ export interface MicroCommandConsole extends MicroCommandBase {
 }
 
 export interface MicroCommandConsoleResult extends MicroCommandBaseResult {
+    success: true;
+}
+
+/**
+ * Pause server execution when a debugger is attached.
+ */
+export interface MicroCommandDebugger extends MicroCommandBase {
+    name: MicroCommandName.Debugger;
+}
+
+export interface MicroCommandDebuggerResult extends MicroCommandBaseResult {
     success: true;
 }
 
@@ -140,15 +154,15 @@ export interface MicroCommandAddinEvalResult extends MicroCommandBaseResult {
 /**
  * Open an Office app file.
  */
-export interface MicroCommandOpenOfficeFile extends MicroCommandBase {
-    name: MicroCommandName.OpenOfficeFile;
+export interface MicroCommandOfficeDocumentOpen extends MicroCommandBase {
+    name: MicroCommandName.OfficeDocumentOpen;
     parameters: {
         filePath: string;
         app: OfficeAppName;
     };
 }
 
-export interface MicroCommandOpenOfficeFileResult extends MicroCommandBaseResult {
+export interface MicroCommandOfficeDocumentOpenResult extends MicroCommandBaseResult {
     success: true;
     values: {
         id: number | undefined;
@@ -158,8 +172,8 @@ export interface MicroCommandOpenOfficeFileResult extends MicroCommandBaseResult
 /**
  * Close an Office app file by process ID or source file path.
  */
-export interface MicroCommandCloseOfficeFile extends MicroCommandBase {
-    name: MicroCommandName.CloseOfficeFile;
+export interface MicroCommandOfficeDocumentClose extends MicroCommandBase {
+    name: MicroCommandName.OfficeDocumentClose;
     parameters: {
         app: OfficeAppName;
         id?: number;
@@ -167,7 +181,7 @@ export interface MicroCommandCloseOfficeFile extends MicroCommandBase {
     };
 }
 
-export interface MicroCommandCloseOfficeFileResult extends MicroCommandBaseResult {
+export interface MicroCommandOfficeDocumentCloseResult extends MicroCommandBaseResult {
     success: true;
 }
 
@@ -299,6 +313,39 @@ export interface MicroCommandReadFileContentsResult extends MicroCommandBaseResu
 }
 
 /**
+ * Embed the server add-in in an Office document.
+ */
+export interface MicroCommandOfficeDocumentEmbedAddIn extends MicroCommandBase {
+    name: MicroCommandName.OfficeDocumentEmbedAddIn;
+    parameters: {
+        filePathIn: string;
+        filePathOut: string;
+        settings: {
+            port: number;
+        };
+    };
+}
+
+export interface MicroCommandOfficeDocumentEmbedAddInResult extends MicroCommandBaseResult {
+    success: true;
+}
+
+/**
+ * Remove the embedded server add-in from an Office document.
+ */
+export interface MicroCommandOfficeDocumentExtractAddIn extends MicroCommandBase {
+    name: MicroCommandName.OfficeDocumentExtractAddIn;
+    parameters: {
+        filePathIn: string;
+        filePathOut: string;
+    };
+}
+
+export interface MicroCommandOfficeDocumentExtractAddInResult extends MicroCommandBaseResult {
+    success: true;
+}
+
+/**
  * Return the Node.js version used by the server runtime.
  */
 export interface MicroCommandMetadataNodeVersion extends MicroCommandBase {
@@ -427,16 +474,18 @@ export interface MicroCommandResultError extends MicroCommandBaseResult {
     error: string;
 }
 
+// Keep in Alphabetical order for easier maintenance.
 export type MicroCommand =
     | MicroCommandConsole
+    | MicroCommandDebugger
     | MicroCommandStartConsole
     | MicroCommandEndConsole
     | MicroCommandStartLog
     | MicroCommandEndLog
     | MicroCommandAddinPing
     | MicroCommandAddinEval
-    | MicroCommandOpenOfficeFile
-    | MicroCommandCloseOfficeFile
+    | MicroCommandOfficeDocumentOpen
+    | MicroCommandOfficeDocumentClose
     | MicroCommandOpenExcelFile
     | MicroCommandCloseExcelFile
     | MicroCommandSaveExcelFile
@@ -446,6 +495,8 @@ export type MicroCommand =
     | MicroCommandPowerShellSaveActiveWorkbookAs
     | MicroCommandForceCloseExcel
     | MicroCommandReadFileContents
+    | MicroCommandOfficeDocumentEmbedAddIn
+    | MicroCommandOfficeDocumentExtractAddIn
     | MicroCommandMetadataNodeVersion
     | MicroCommandMetadataServerVersion
     | MicroCommandWebsocketServerOpen
@@ -455,17 +506,19 @@ export type MicroCommand =
     | MicroCommandWebsocketServerTakeMessages
     | MicroCommandWebsocketServerClose;
 
+// Keep in Alphabetical order for easier maintenance.
 export type MicroCommandResult =
     | MicroCommandResultError
     | MicroCommandConsoleResult
+    | MicroCommandDebuggerResult
     | MicroCommandStartConsoleResult
     | MicroCommandEndConsoleResult
     | MicroCommandStartLogResult
     | MicroCommandEndLogResult
     | MicroCommandAddinPingResult
     | MicroCommandAddinEvalResult
-    | MicroCommandOpenOfficeFileResult
-    | MicroCommandCloseOfficeFileResult
+    | MicroCommandOfficeDocumentOpenResult
+    | MicroCommandOfficeDocumentCloseResult
     | MicroCommandOpenExcelFileResult
     | MicroCommandCloseExcelFileResult
     | MicroCommandSaveExcelFileResult
@@ -475,6 +528,8 @@ export type MicroCommandResult =
     | MicroCommandPowerShellSaveActiveWorkbookAsResult
     | MicroCommandForceCloseExcelResult
     | MicroCommandReadFileContentsResult
+    | MicroCommandOfficeDocumentEmbedAddInResult
+    | MicroCommandOfficeDocumentExtractAddInResult
     | MicroCommandMetadataNodeVersionResult
     | MicroCommandMetadataServerVersionResult
     | MicroCommandWebsocketServerOpenResult

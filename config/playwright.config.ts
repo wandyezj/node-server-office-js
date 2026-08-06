@@ -3,14 +3,13 @@ import path from "path";
 
 const testDir = path.resolve("test");
 
-
 import config from "../src/server/config.json";
 
 const port = config.http.port;
 
 export default defineConfig({
     testDir,
-    testMatch: /.*\.ts/,
+    testMatch: /.*\.test\.ts/,
     fullyParallel: false,
     reporter: "list",
     use: {

@@ -1,24 +1,31 @@
 import { APIRequestContext, expect, test } from "@playwright/test";
-import { existsSync, mkdirSync, readFileSync, unlinkSync } from "node:fs";
-import * as net from "node:net";
-import * as path from "node:path";
+import { readFileSync } from "node:fs";
 import { WebSocket } from "ws";
 import {
-    MicroCommand,
     MicroCommandAddinEvalResult,
     MicroCommandBody,
     MicroCommandBodyResult,
     MicroCommandMetadataNodeVersionResult,
     MicroCommandMetadataServerVersionResult,
     MicroCommandName,
-    OfficeAppName,
     MicroCommandReadFileContentsResult,
-    MicroCommandResult,
-    MicroCommandResultWithMetadata,
     MicroCommandWebsocketServerTakeMessagesResult,
 } from "../src/server/handlers/microCommand/MicroCommand";
 import packageJson from "../package.json";
 import assert from "node:assert";
+import {
+    getDefaultLogFilePath,
+    defaultFilePath,
+    defaultCodeFilePath,
+    defaultFileOutPath,
+    cleanOutDirectory,
+    getCodeFromFile,
+    getCodeFile,
+} from "./util/helpers";
+import { runMicroCommands, runMicroCommandsBase } from "./util/runMicroCommands";
+import { getResultByCommandId } from "./util/getResultByCommandId";
+import { getAvailablePort } from "./util/getAvailablePort";
+import { connectWebsocket } from "./util/connectWebsocket";
 
 test("GET / ping", async ({ request }) => {
     const response = await request.get("/ping");
@@ -28,153 +35,6 @@ test("GET / ping", async ({ request }) => {
     expect(body).toContain("pong");
 });
 
-const rootDirectory = path.join(__dirname, "..");
-
-const defaultFilePath = path
-    .normalize(path.join(rootDirectory, "test", "test.xlsx"))
-    .replace(/\\/g, "/");
-
-const defaultCodeFileDirectory = path
-    .normalize(path.join(rootDirectory, "test", "data"))
-    .replace(/\\/g, "/");
-
-const defaultPathOutDirectory = path
-    .normalize(path.join(rootDirectory, "test", "out"))
-    .replace(/\\/g, "/");
-
-const defaultFileOutPath = path
-    .normalize(path.join(defaultPathOutDirectory, "test-out.xlsx"))
-    .replace(/\\/g, "/");
-
-function getCodeFile(fileName: string) {
-    return path.normalize(path.join(defaultCodeFileDirectory, fileName)).replace(/\\/g, "/");
-}
-
-function getCodeFromFile(filePath: string) {
-    return readFileSync(getCodeFile(filePath), "utf-8");
-}
-
-const defaultCodeFilePath = getCodeFile("hello-world-excel.js");
-
-const defaultLogFileDirectory = defaultPathOutDirectory;
-
-function getDefaultLogFilePath(fileName: string = "micro-command.log") {
-    const logFilePath = path
-        .normalize(path.join(defaultLogFileDirectory, fileName))
-        .replace(/\\/g, "/");
-    if (existsSync(logFilePath)) {
-        unlinkSync(logFilePath);
-    }
-    return logFilePath;
-}
-
-function cleanOutDirectory() {
-    if (existsSync(defaultFileOutPath)) {
-        unlinkSync(defaultFileOutPath);
-    }
-    mkdirSync(defaultPathOutDirectory, { recursive: true });
-}
-
-async function runMicroCommandsBase(
-    request: APIRequestContext,
-    commands: unknown[],
-): Promise<MicroCommandBodyResult> {
-    const response = await request.post("/run-micro-commands", {
-        data: { commands },
-    });
-    expect(response.ok()).toBeTruthy();
-
-    const body = await response.text();
-    const message = JSON.parse(body) as MicroCommandBodyResult;
-    return message;
-}
-
-async function runMicroCommands(
-    request: APIRequestContext,
-    commands: MicroCommand[],
-): Promise<MicroCommandBodyResult> {
-    const message = await runMicroCommandsBase(request, commands);
-    expect(message.success).toBe(true);
-    expect(message.results).toHaveLength(commands.length);
-    for (const result of message.results) {
-        expect(result.success).toBe(true);
-    }
-
-    return message;
-}
-
-function getResultByCommandId(message: MicroCommandBodyResult, id: string): MicroCommandResult {
-    const result = message.results.find((r) => r.id === id);
-    if (!result) {
-        throw new Error(`No result found for command ID: ${id}`);
-    }
-    return result;
-}
-
-async function getAvailablePort(): Promise<number> {
-    const server = net.createServer();
-    const listening = Promise.withResolvers<void>();
-    server.listen(0, listening.resolve);
-    await listening.promise;
-    const address = server.address();
-    const closed = Promise.withResolvers<void>();
-    server.close((error) => {
-        if (error) {
-            closed.reject(error);
-            return;
-        }
-        closed.resolve();
-    });
-    await closed.promise;
-
-    if (!address || typeof address === "string") {
-        throw new Error("Failed to find an available port.");
-    }
-
-    return address.port;
-}
-
-function connectWebsocket(
-    port: number,
-    timeoutMs: number = 5000,
-): Promise<{
-    socket: WebSocket;
-    receivedMessage: Promise<string>;
-}> {
-    const deadline = Date.now() + timeoutMs;
-    const connection = Promise.withResolvers<{
-        socket: WebSocket;
-        receivedMessage: Promise<string>;
-    }>();
-
-    function attemptConnection(): void {
-        const socket = new WebSocket(`ws://127.0.0.1:${port}`);
-        const receivedMessage = Promise.withResolvers<string>();
-        const retryTimeoutMs = 25;
-
-        socket.once("message", (data) => receivedMessage.resolve(`${data}`));
-        socket.once("open", () => {
-            socket.off("error", handleConnectionError);
-            socket.once("error", receivedMessage.reject);
-            connection.resolve({ socket, receivedMessage: receivedMessage.promise });
-        });
-
-        function handleConnectionError(error: Error): void {
-            socket.close();
-            if (Date.now() >= deadline) {
-                connection.reject(error);
-                return;
-            }
-            setTimeout(attemptConnection, retryTimeoutMs);
-        }
-
-        socket.once("error", handleConnectionError);
-    }
-
-    attemptConnection();
-    return connection.promise;
-}
-
 test("Run Micro Command - Console", async ({ request }) => {
     await runMicroCommands(request, [
         {
@@ -182,6 +42,14 @@ test("Run Micro Command - Console", async ({ request }) => {
             parameters: {
                 message: "Hello, World!",
             },
+        },
+    ]);
+});
+
+test("Run Micro Command - Debugger", async ({ request }) => {
+    await runMicroCommands(request, [
+        {
+            name: MicroCommandName.Debugger,
         },
     ]);
 });
@@ -253,25 +121,6 @@ test("Run Micro Command - Open Excel File", async ({ request }) => {
         },
     ]);
 });
-
-// test("Run Micro Command - Open Office File (Excel)", async ({ request }) => {
-//     await runMicroCommands(request, [
-//         {
-//             name: MicroCommandName.OpenOfficeFile,
-//             parameters: {
-//                 app: OfficeAppName.Excel,
-//                 filePath: defaultFilePath,
-//             },
-//         },
-//         {
-//             name: MicroCommandName.CloseOfficeFile,
-//             parameters: {
-//                 app: OfficeAppName.Excel,
-//                 filePath: defaultFilePath,
-//             },
-//         },
-//     ]);
-// });
 
 test("Run Micro Command - Eval", async ({ request }) => {
     const code = readFileSync(defaultCodeFilePath, "utf-8");
