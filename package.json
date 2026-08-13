@@ -5,11 +5,14 @@
     "main": "index.bundle.js",
     "private": true,
     "scripts": {
-        "build": "npm run style-check && npm run clean && npm run compile && npm run generate-python-interface",
+        "build": "npm run style-check && npm run clean && npm run compile && npm run generate-interface-python && npm run generate-interface-json",
         "style": "prettier --config ./config/prettier.json --write \"@(src|test)/**/*.@(ts|tsx|js|md|html|css|json)\"",
         "style-check": "prettier --config ./config/prettier.json --check \"@(src|test)/**/*.@(ts|tsx|js|md|html|css|json)\"",
-        "generate-python-interface": "node ./scripts/micro-command-python.js",
+        "generate-interface-python": "node ./scripts/micro-command-python.js",
+        "generate-interface-json": "node ./scripts/micro-command-json.js",
         "ping": "ts-node ./scripts/ping.ts",
+        "ping-file": "ts-node ./scripts/ping.ts --run-micro-commands --env-file-path ./test/commands/env/env.json --file-path ./test/commands/basic.json",
+        "ping-file-name": "ts-node ./scripts/ping.ts --run-micro-commands --env-file-path ./test/commands/env/env.json --file-path ./test/commands/websocket-addin.json",
         "test": "playwright test --config ./config/playwright.config.ts",
         "test:ui": "playwright test --config ./config/playwright.config.ts --ui",
         "clean": "node ./scripts/clean.js dist",
@@ -58,6 +61,7 @@
         "@prettier/plugin-xml": "^3.4.2",
         "@xmldom/xmldom": "^0.9.9",
         "adm-zip": "^0.6.0",
+        "jsonc-parser": "^3.3.1",
         "ws": "^8.20.0"
     }
 }

@@ -1,0 +1,12 @@
+{
+    "$schema": "./schema/micro-command.schema.json",
+    // Simple Hello Word!
+    "commands": [
+        {
+            "name": "Console",
+            "parameters": {
+                "message": "Hello, World!"
+            }
+        }
+    ]
+}

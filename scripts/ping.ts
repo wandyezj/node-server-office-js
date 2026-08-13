@@ -9,6 +9,7 @@
 
 import { parseArgs } from "node:util";
 import path from "node:path";
+import { parse } from "jsonc-parser";
 
 import config from "../src/server/config.json";
 
@@ -33,12 +34,18 @@ const { values, positionals } = parseArgs({
             type: "boolean",
             default: false,
         },
+        ["run-micro-commands"]: {
+            type: "boolean",
+        },
         ["open-excel"]: {
             type: "boolean",
         },
         ["file-path"]: {
             type: "string",
             default: defaultFilePath,
+        },
+        ["env-file-path"]: {
+            type: "string",
         },
         ["close-excel"]: {
             type: "boolean",
@@ -61,6 +68,7 @@ const { values, positionals } = parseArgs({
 
 const baseUrl = `http://localhost:${port}`;
 
+
 async function commandPing() {
     console.log("Pinging server...");
     const url = `${baseUrl}/ping`;
@@ -70,6 +78,7 @@ async function commandPing() {
 }
 
 async function postCommand(url: string, body: Record<string, any>) {
+    console.log(JSON.stringify(body, null, 4));
     const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -79,7 +88,85 @@ async function postCommand(url: string, body: Record<string, any>) {
     });
     console.log(`Response status: ${response.status}`);
     const data = await response.json();
-    console.log(data);
+    console.log(JSON.stringify(data, null, 4));
+}
+
+function parseEnvFile(filePathEnv?: string): Record<string, unknown> {
+    if (!filePathEnv) {
+        return {};
+    }
+    const data = parse(readFileSync(filePathEnv, "utf-8"));
+
+        const defaultEnv = {
+        "root": path.normalize(rootDirectory).replace(/\\/g, "/")
+    }
+
+    return substituteVariables(data, defaultEnv) as Record<
+        string,
+        unknown
+    >;
+}
+
+async function commandRunMicroCommands(filePath: string, filePathEnv: string | undefined) {
+    const url = `${baseUrl}/run-micro-commands`;
+    if (!filePath) {
+        console.error("Please provide a file path using --file-path");
+        return;
+    }
+
+    console.log(`Run micro commands from file: ${filePath}`);
+    const data = readFileSync(filePath, "utf-8");
+    const environment = parseEnvFile(filePathEnv);
+
+    const commands = substituteVariables(parse(data), environment);
+
+    await postCommand(url, commands as Record<string, any>);
+}
+
+function substituteVariables(value: unknown, environment: Record<string, unknown>): unknown {
+
+    // Recurse Array
+    if (Array.isArray(value)) {
+        return value.map((item) => substituteVariables(item, environment));
+    }
+
+    // Recurse Map
+    if (value && typeof value === "object") {
+        return Object.fromEntries(
+            Object.entries(value).map(([key, child]) => [
+                key,
+                substituteVariables(child, environment),
+            ]),
+        );
+    }
+
+    if (typeof value !== "string") {
+        return value;
+    }
+
+
+    function replaceVariable(variableName: string): unknown {
+        if (!(variableName in environment)) {
+            throw new Error(`Missing environment variable: ${variableName}`);
+        }
+        return environment[variableName];
+    };
+
+
+    // Supports substitution syntax of: `${var}` and `%var%`
+
+    // Allow substitution of entire value - to allow type replacement
+    const exactMatch = value.match(/^(?:\$\{([^}]+)\}|%([^%]+)%)$/);
+    if (exactMatch) {
+        return replaceVariable(exactMatch[1] ?? exactMatch[2]);
+    }
+
+    // Allow substitution within values
+    return value.replace(/\$\{([^}]+)\}|%([^%]+)%/g, (match, dollarName, percentName) => {
+        const variableName = dollarName ?? percentName;
+        const replacement = replaceVariable(variableName);
+        return String(replacement);
+    });
 }
 
 async function commandOpenExcel(filePath: string) {
@@ -129,6 +216,12 @@ async function main() {
     // --ping
     if (values.ping) {
         await commandPing();
+    }
+
+    if (values["run-micro-commands"]) {
+        const filePath = values["file-path"];
+        const filePathEnv = values["env-file-path"];
+        await commandRunMicroCommands(filePath, filePathEnv);
     }
 
     // --open-excel --file-path "C:\file.xlsx"

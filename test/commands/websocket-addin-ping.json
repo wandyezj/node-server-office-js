@@ -1,0 +1,104 @@
+{
+    "$schema": "./schema/micro-command.schema.json",
+    // Open Excel, Ping the Add-In, and get Pong back.
+    "commands": [
+        // Setup - open server and prepare document
+        {
+            "name": "WebsocketServerOpen",
+            "id": "websocket-server-open",
+            "parameters": {
+                "port": "${websocketPort}"
+            }
+        },
+        {
+            "name": "OfficeDocumentEmbedAddIn",
+            "id": "office-document-embed-addin",
+            "parameters": {
+                "filePathIn": "${defaultFilePath}",
+                "filePathOut": "${defaultFileTempPath}",
+                "settings": {
+                    "port": "${websocketPort}"
+                }
+            }
+        },
+        // Open the document
+        {
+            "name": "OfficeDocumentOpen",
+            "id": "office-document-open",
+            "parameters": {
+                "app": "Excel",
+                "filePath": "${defaultFileTempPath}"
+            }
+        },
+        {
+            "name": "WebsocketServerAwaitConnection",
+            "id": "websocket-server-await-connection",
+            "parameters": {
+                "port": "${websocketPort}",
+                "timeoutMs": 30000
+            }
+        },
+        {
+            "name": "WebsocketServerAwaitMessage",
+            "id": "websocket-server-await-message-ready",
+            "parameters": {
+                "port": "${websocketPort}",
+                "timeoutMs": 5000
+            }
+        },
+        {
+            "name": "WebsocketServerTakeMessages",
+            "id": "websocket-server-take-messages-ready",
+            "parameters": {
+                "port": "${websocketPort}"
+            }
+        },
+        {
+            "name": "WebsocketServerSendMessage",
+            "id": "websocket-server-send-message-hello-client",
+            "parameters": {
+                "port": "${websocketPort}",
+                "message": "{\"type\":\"Ping\",\"source\":\"Client\",\"sequence\":1,\"message\":\"Ping from client\"}"
+            }
+        },
+        {
+            "name": "WebsocketServerAwaitMessage",
+            "id": "websocket-server-await-message",
+            "parameters": {
+                "port": "${websocketPort}",
+                "timeoutMs": 5000
+            }
+        },
+        {
+            "name": "WebsocketServerTakeMessages",
+            "id": "websocket-server-take-messages",
+            "parameters": {
+                "port": "${websocketPort}"
+            }
+        },
+        // Cleanup
+        {
+            "name": "OfficeDocumentExtractAddIn",
+            "id": "office-document-extract-addin",
+            "parameters": {
+                "filePathIn": "${defaultFileTempPath}",
+                "filePathOut": "${defaultFileOutPath}"
+            }
+        },
+        {
+            "name": "WebsocketServerClose",
+            "id": "websocket-server-close",
+            "parameters": {
+                "port": "${websocketPort}"
+            }
+        },
+        {
+            "name": "OfficeDocumentClose",
+            "id": "office-document-close",
+            "parameters": {
+                "app": "Excel",
+                "filePath": "${defaultFileTempPath}"
+            }
+        }
+    ]
+}
