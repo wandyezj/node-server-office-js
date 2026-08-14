@@ -1,0 +1,37 @@
+{
+    "$schema": "./schema/micro-command.schema.json",
+    // Wait for new connection on port and then send the message.
+    "commands": [
+        {
+            "name": "WebsocketServerAwaitConnection",
+            "id": "websocket-server-await-connection",
+            "parameters": {
+                "port": "${websocketPort}",
+                "timeoutMs": 300000
+            }
+        },
+        {
+            "name": "WebsocketServerSendMessage",
+            "id": "websocket-server-send-message",
+            "parameters": {
+                "port": "${websocketPort}",
+                "message": "${filedata:%desktop%/scripts/node-server-tool/websocket-message.json}"
+            }
+        },
+        {
+            "name": "WebsocketServerAwaitMessage",
+            "id": "websocket-server-await-message",
+            "parameters": {
+                "port": "${websocketPort}",
+                "timeoutMs": 30000
+            }
+        },
+        {
+            "name": "WebsocketServerTakeMessages",
+            "id": "websocket-server-take-messages",
+            "parameters": {
+                "port": "${websocketPort}"
+            }
+        }
+    ]
+}

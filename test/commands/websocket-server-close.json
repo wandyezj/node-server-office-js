@@ -1,0 +1,13 @@
+{
+    "$schema": "./schema/micro-command.schema.json",
+    // Close WebSocket Server on Port
+    "commands": [
+        {
+            "name": "WebsocketServerClose",
+            "id": "websocket-server-close",
+            "parameters": {
+                "port": "${websocketPort}"
+            }
+        }
+    ]
+}

@@ -1,0 +1,13 @@
+{
+    "$schema": "./schema/micro-command.schema.json",
+    // Open WebSocket server on Port
+    "commands": [
+        {
+            "name": "WebsocketServerOpen",
+            "id": "websocket-server-open",
+            "parameters": {
+                "port": "${websocketPort}"
+            }
+        }
+    ]
+}

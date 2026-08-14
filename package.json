@@ -13,6 +13,7 @@
         "ping": "ts-node ./scripts/ping.ts",
         "ping-file": "ts-node ./scripts/ping.ts --run-micro-commands --env-file-path ./test/commands/env/env.json --file-path ./test/commands/basic.json",
         "ping-file-name": "ts-node ./scripts/ping.ts --run-micro-commands --env-file-path ./test/commands/env/env.json --file-path ./test/commands/websocket-addin.json",
+        "commands": "ts-node ./scripts/ping.ts --run-micro-commands --env-file-path ./test/commands/env/env.json ",
         "test": "playwright test --config ./config/playwright.config.ts",
         "test:ui": "playwright test --config ./config/playwright.config.ts --ui",
         "clean": "node ./scripts/clean.js dist",

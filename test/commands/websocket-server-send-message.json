@@ -1,0 +1,29 @@
+{
+    "$schema": "./schema/micro-command.schema.json",
+    // Send message on WebSocket server port.
+    "commands": [
+        {
+            "name": "WebsocketServerSendMessage",
+            "id": "websocket-server-send-message",
+            "parameters": {
+                "port": "${websocketPort}",
+                "message": "${filedata:%desktop%/scripts/node-server-tool/websocket-message.json}"
+            }
+        },
+        {
+            "name": "WebsocketServerAwaitMessage",
+            "id": "websocket-server-await-message",
+            "parameters": {
+                "port": "${websocketPort}",
+                "timeoutMs": 30000
+            }
+        },
+        {
+            "name": "WebsocketServerTakeMessages",
+            "id": "websocket-server-take-messages",
+            "parameters": {
+                "port": "${websocketPort}"
+            }
+        }
+    ]
+}

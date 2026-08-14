@@ -13,7 +13,7 @@ import { parse } from "jsonc-parser";
 
 import config from "../src/server/config.json";
 
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 
 const port = config.http.port;
 
@@ -63,6 +63,9 @@ const { values, positionals } = parseArgs({
         ["id"]: {
             type: "string",
         },
+        ["dry-run"]: {
+            type: "boolean",
+        },
     },
 });
 
@@ -78,7 +81,7 @@ async function commandPing() {
 }
 
 async function postCommand(url: string, body: Record<string, any>) {
-    console.log(JSON.stringify(body, null, 4));
+    
     const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -91,15 +94,30 @@ async function postCommand(url: string, body: Record<string, any>) {
     console.log(JSON.stringify(data, null, 4));
 }
 
+function expandPercentEnvVariables(value: string): string {
+    // Expand Windows-style %VAR% tokens and leave unknown variables untouched.
+    return value.replace(/%([^%]+)%/g, (match, rawName) => {
+        const name = rawName.trim();
+        if (name.length === 0) {
+            return match;
+        }
+
+        const envValue = process.env[name];
+        return envValue === undefined ? match : envValue;
+    });
+}
+
+
 function parseEnvFile(filePathEnv?: string): Record<string, unknown> {
     if (!filePathEnv) {
         return {};
     }
     const data = parse(readFileSync(filePathEnv, "utf-8"));
 
-        const defaultEnv = {
-        "root": path.normalize(rootDirectory).replace(/\\/g, "/")
-    }
+    const defaultEnv = {
+        "root": path.normalize(rootDirectory).replace(/\\/g, "/"),
+        "desktop": path.normalize(expandPercentEnvVariables("%OneDrive%/Desktop")).replace(/\\/g, "/"),
+    };
 
     return substituteVariables(data, defaultEnv) as Record<
         string,
@@ -107,21 +125,32 @@ function parseEnvFile(filePathEnv?: string): Record<string, unknown> {
     >;
 }
 
-async function commandRunMicroCommands(filePath: string, filePathEnv: string | undefined) {
+async function commandRunMicroCommands(filePath: string | undefined, filePathEnv: string | undefined, options: { dryRun?: boolean } = {}) {
+    const { dryRun } = options;
     const url = `${baseUrl}/run-micro-commands`;
+
     if (!filePath) {
         console.error("Please provide a file path using --file-path");
         return;
     }
 
     console.log(`Run micro commands from file: ${filePath}`);
+
     const data = readFileSync(filePath, "utf-8");
     const environment = parseEnvFile(filePathEnv);
 
     const commands = substituteVariables(parse(data), environment);
 
+    console.log(JSON.stringify(commands, null, 4));
+    if (dryRun) {
+        console.log("Dry run enabled. Skipping command execution.");
+        return;
+    }
+
     await postCommand(url, commands as Record<string, any>);
 }
+
+
 
 function substituteVariables(value: unknown, environment: Record<string, unknown>): unknown {
 
@@ -146,11 +175,25 @@ function substituteVariables(value: unknown, environment: Record<string, unknown
 
 
     function replaceVariable(variableName: string): unknown {
+        // Support substitution syntax of: ${filedata:path}
+        // This reads the contents of the file at the specified path and replaces the variable
+        if (variableName.startsWith("filedata:")) {
+            const filePath = substituteVariables(variableName.slice("filedata:".length), environment);
+            if (typeof filePath !== "string") {
+                throw new Error(`File path must resolve to a string: ${variableName}`);
+            }
+            if (!existsSync(filePath)) {
+                throw new Error(`File does not exist: ${filePath}`);
+            }
+            return readFileSync(filePath, "utf-8");
+        }
+
         if (!(variableName in environment)) {
             throw new Error(`Missing environment variable: ${variableName}`);
         }
         return environment[variableName];
     };
+
 
 
     // Supports substitution syntax of: `${var}` and `%var%`
@@ -213,15 +256,18 @@ async function commandAddinEval(codeFile: string) {
 }
 
 async function main() {
+
+    const dryRun = values["dry-run"];
+
     // --ping
     if (values.ping) {
         await commandPing();
     }
 
     if (values["run-micro-commands"]) {
-        const filePath = values["file-path"];
+        const filePath = values["file-path"] || positionals.pop();
         const filePathEnv = values["env-file-path"];
-        await commandRunMicroCommands(filePath, filePathEnv);
+        await commandRunMicroCommands(filePath, filePathEnv, {dryRun});
     }
 
     // --open-excel --file-path "C:\file.xlsx"
