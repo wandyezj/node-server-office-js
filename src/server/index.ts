@@ -100,7 +100,7 @@ if (config.https.enabled) {
 
 if (config.socket.enabled) {
     const port = config.socket.port;
-    const serverWebsocket = new WebSocketServer({ port });
+    const serverWebsocket = new WebSocketServer({ port, host: "localhost" });
 
     serverWebsocket.on("connection", function connection(ws) {
         ws.on("error", console.error);

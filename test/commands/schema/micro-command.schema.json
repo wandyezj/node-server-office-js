@@ -11,9 +11,7 @@
             }
         }
     },
-    "required": [
-        "commands"
-    ],
+    "required": ["commands"],
     "additionalProperties": false,
     "$defs": {
         "MicroCommandName": {
@@ -50,11 +48,7 @@
             ]
         },
         "OfficeAppName": {
-            "enum": [
-                "Excel",
-                "Word",
-                "PowerPoint"
-            ]
+            "enum": ["Excel", "Word", "PowerPoint"]
         },
         "MicroCommandBase": {
             "type": "object",
@@ -76,9 +70,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandConsole": {
             "type": "object",
@@ -97,16 +89,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "message"
-                    ]
+                    "required": ["message"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name",
-                "parameters"
-            ]
+            "required": ["name", "parameters"]
         },
         "MicroCommandConsoleResult": {
             "type": "object",
@@ -119,9 +106,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandDebugger": {
             "type": "object",
@@ -134,9 +119,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name"
-            ]
+            "required": ["name"]
         },
         "MicroCommandDebuggerResult": {
             "type": "object",
@@ -149,9 +132,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandStartConsole": {
             "type": "object",
@@ -164,9 +145,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name"
-            ]
+            "required": ["name"]
         },
         "MicroCommandStartConsoleResult": {
             "type": "object",
@@ -179,9 +158,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandEndConsole": {
             "type": "object",
@@ -194,9 +171,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name"
-            ]
+            "required": ["name"]
         },
         "MicroCommandEndConsoleResult": {
             "type": "object",
@@ -209,9 +184,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandStartLog": {
             "type": "object",
@@ -230,16 +203,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "filePath"
-                    ]
+                    "required": ["filePath"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name",
-                "parameters"
-            ]
+            "required": ["name", "parameters"]
         },
         "MicroCommandStartLogResult": {
             "type": "object",
@@ -252,9 +220,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandEndLog": {
             "type": "object",
@@ -267,9 +233,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name"
-            ]
+            "required": ["name"]
         },
         "MicroCommandEndLogResult": {
             "type": "object",
@@ -282,9 +246,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandAddinPing": {
             "type": "object",
@@ -297,9 +259,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name"
-            ]
+            "required": ["name"]
         },
         "MicroCommandAddinPingResult": {
             "type": "object",
@@ -312,9 +272,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandAddinEval": {
             "type": "object",
@@ -333,16 +291,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "code"
-                    ]
+                    "required": ["code"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name",
-                "parameters"
-            ]
+            "required": ["name", "parameters"]
         },
         "MicroCommandAddinEvalResult": {
             "type": "object",
@@ -368,16 +321,11 @@
                         "result": {}
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "console"
-                    ]
+                    "required": ["console"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success",
-                "values"
-            ]
+            "required": ["success", "values"]
         },
         "MicroCommandOfficeDocumentOpen": {
             "type": "object",
@@ -399,17 +347,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "filePath",
-                        "app"
-                    ]
+                    "required": ["filePath", "app"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name",
-                "parameters"
-            ]
+            "required": ["name", "parameters"]
         },
         "MicroCommandOfficeDocumentOpenResult": {
             "type": "object",
@@ -428,16 +370,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "id"
-                    ]
+                    "required": ["id"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success",
-                "values"
-            ]
+            "required": ["success", "values"]
         },
         "MicroCommandOfficeDocumentClose": {
             "type": "object",
@@ -462,16 +399,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "app"
-                    ]
+                    "required": ["app"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name",
-                "parameters"
-            ]
+            "required": ["name", "parameters"]
         },
         "MicroCommandOfficeDocumentCloseResult": {
             "type": "object",
@@ -484,9 +416,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandOpenExcelFile": {
             "type": "object",
@@ -505,16 +435,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "filePath"
-                    ]
+                    "required": ["filePath"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name",
-                "parameters"
-            ]
+            "required": ["name", "parameters"]
         },
         "MicroCommandOpenExcelFileResult": {
             "type": "object",
@@ -533,16 +458,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "id"
-                    ]
+                    "required": ["id"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success",
-                "values"
-            ]
+            "required": ["success", "values"]
         },
         "MicroCommandCloseExcelFile": {
             "type": "object",
@@ -567,10 +487,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name",
-                "parameters"
-            ]
+            "required": ["name", "parameters"]
         },
         "MicroCommandCloseExcelFileResult": {
             "type": "object",
@@ -583,9 +500,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandSaveExcelFile": {
             "type": "object",
@@ -604,16 +519,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "filePath"
-                    ]
+                    "required": ["filePath"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name",
-                "parameters"
-            ]
+            "required": ["name", "parameters"]
         },
         "MicroCommandSaveExcelFileResult": {
             "type": "object",
@@ -626,9 +536,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandPowerShellOpenExcelFile": {
             "type": "object",
@@ -647,16 +555,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "filePath"
-                    ]
+                    "required": ["filePath"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name",
-                "parameters"
-            ]
+            "required": ["name", "parameters"]
         },
         "MicroCommandPowerShellOpenExcelFileResult": {
             "type": "object",
@@ -669,9 +572,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandPowerShellCloseExcelFile": {
             "type": "object",
@@ -684,9 +585,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name"
-            ]
+            "required": ["name"]
         },
         "MicroCommandPowerShellCloseExcelFileResult": {
             "type": "object",
@@ -699,9 +598,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandPowerShellSaveExcelFile": {
             "type": "object",
@@ -720,16 +617,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "filePath"
-                    ]
+                    "required": ["filePath"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name",
-                "parameters"
-            ]
+            "required": ["name", "parameters"]
         },
         "MicroCommandPowerShellSaveExcelFileResult": {
             "type": "object",
@@ -742,9 +634,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandPowerShellSaveActiveWorkbookAs": {
             "type": "object",
@@ -763,16 +653,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "filePath"
-                    ]
+                    "required": ["filePath"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name",
-                "parameters"
-            ]
+            "required": ["name", "parameters"]
         },
         "MicroCommandPowerShellSaveActiveWorkbookAsResult": {
             "type": "object",
@@ -785,9 +670,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandForceCloseExcel": {
             "type": "object",
@@ -800,9 +683,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name"
-            ]
+            "required": ["name"]
         },
         "MicroCommandForceCloseExcelResult": {
             "type": "object",
@@ -815,9 +696,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandReadFileContents": {
             "type": "object",
@@ -836,16 +715,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "filePath"
-                    ]
+                    "required": ["filePath"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name",
-                "parameters"
-            ]
+            "required": ["name", "parameters"]
         },
         "MicroCommandReadFileContentsResult": {
             "type": "object",
@@ -864,16 +738,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "contents"
-                    ]
+                    "required": ["contents"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success",
-                "values"
-            ]
+            "required": ["success", "values"]
         },
         "MicroCommandOfficeDocumentEmbedAddIn": {
             "type": "object",
@@ -901,24 +770,15 @@
                                 }
                             },
                             "additionalProperties": false,
-                            "required": [
-                                "port"
-                            ]
+                            "required": ["port"]
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "filePathIn",
-                        "filePathOut",
-                        "settings"
-                    ]
+                    "required": ["filePathIn", "filePathOut", "settings"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name",
-                "parameters"
-            ]
+            "required": ["name", "parameters"]
         },
         "MicroCommandOfficeDocumentEmbedAddInResult": {
             "type": "object",
@@ -931,9 +791,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandOfficeDocumentExtractAddIn": {
             "type": "object",
@@ -955,17 +813,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "filePathIn",
-                        "filePathOut"
-                    ]
+                    "required": ["filePathIn", "filePathOut"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name",
-                "parameters"
-            ]
+            "required": ["name", "parameters"]
         },
         "MicroCommandOfficeDocumentExtractAddInResult": {
             "type": "object",
@@ -978,9 +830,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandMetadataNodeVersion": {
             "type": "object",
@@ -993,9 +843,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name"
-            ]
+            "required": ["name"]
         },
         "MicroCommandMetadataNodeVersionResult": {
             "type": "object",
@@ -1014,16 +862,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "version"
-                    ]
+                    "required": ["version"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success",
-                "values"
-            ]
+            "required": ["success", "values"]
         },
         "MicroCommandMetadataServerVersion": {
             "type": "object",
@@ -1036,9 +879,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name"
-            ]
+            "required": ["name"]
         },
         "MicroCommandMetadataServerVersionResult": {
             "type": "object",
@@ -1057,16 +898,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "version"
-                    ]
+                    "required": ["version"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success",
-                "values"
-            ]
+            "required": ["success", "values"]
         },
         "MicroCommandWebsocketServerOpen": {
             "type": "object",
@@ -1085,16 +921,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "port"
-                    ]
+                    "required": ["port"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name",
-                "parameters"
-            ]
+            "required": ["name", "parameters"]
         },
         "MicroCommandWebsocketServerOpenResult": {
             "type": "object",
@@ -1113,16 +944,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "port"
-                    ]
+                    "required": ["port"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success",
-                "values"
-            ]
+            "required": ["success", "values"]
         },
         "MicroCommandWebsocketServerAwaitConnection": {
             "type": "object",
@@ -1144,16 +970,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "port"
-                    ]
+                    "required": ["port"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name",
-                "parameters"
-            ]
+            "required": ["name", "parameters"]
         },
         "MicroCommandWebsocketServerAwaitConnectionResult": {
             "type": "object",
@@ -1166,9 +987,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandWebsocketServerSendMessage": {
             "type": "object",
@@ -1190,17 +1009,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "port",
-                        "message"
-                    ]
+                    "required": ["port", "message"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name",
-                "parameters"
-            ]
+            "required": ["name", "parameters"]
         },
         "MicroCommandWebsocketServerSendMessageResult": {
             "type": "object",
@@ -1213,9 +1026,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandWebsocketServerAwaitMessage": {
             "type": "object",
@@ -1237,16 +1048,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "port"
-                    ]
+                    "required": ["port"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name",
-                "parameters"
-            ]
+            "required": ["name", "parameters"]
         },
         "MicroCommandWebsocketServerAwaitMessageResult": {
             "type": "object",
@@ -1259,9 +1065,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandWebsocketServerTakeMessages": {
             "type": "object",
@@ -1280,16 +1084,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "port"
-                    ]
+                    "required": ["port"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name",
-                "parameters"
-            ]
+            "required": ["name", "parameters"]
         },
         "MicroCommandWebsocketServerTakeMessagesResult": {
             "type": "object",
@@ -1314,17 +1113,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "port",
-                        "messages"
-                    ]
+                    "required": ["port", "messages"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success",
-                "values"
-            ]
+            "required": ["success", "values"]
         },
         "MicroCommandWebsocketServerClose": {
             "type": "object",
@@ -1343,16 +1136,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "port"
-                    ]
+                    "required": ["port"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "name",
-                "parameters"
-            ]
+            "required": ["name", "parameters"]
         },
         "MicroCommandWebsocketServerCloseResult": {
             "type": "object",
@@ -1365,9 +1153,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success"
-            ]
+            "required": ["success"]
         },
         "MicroCommandResultError": {
             "type": "object",
@@ -1383,10 +1169,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "success",
-                "error"
-            ]
+            "required": ["success", "error"]
         },
         "MicroCommand": {
             "oneOf": [
@@ -1585,9 +1368,7 @@
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "commands"
-            ]
+            "required": ["commands"]
         },
         "MicroCommandBodyResult": {
             "type": "object",
@@ -1609,17 +1390,11 @@
                         }
                     },
                     "additionalProperties": false,
-                    "required": [
-                        "durationMs"
-                    ]
+                    "required": ["durationMs"]
                 }
             },
             "additionalProperties": false,
-            "required": [
-                "results",
-                "success",
-                "metrics"
-            ]
+            "required": ["results", "success", "metrics"]
         }
     }
 }

@@ -15,7 +15,7 @@ class GenericWebsocketServer {
     #messageWaiters: Waiter<void>[] = [];
 
     constructor(port: number) {
-        this.#server = new WebSocketServer({ port });
+        this.#server = new WebSocketServer({ port, host: "localhost" });
         this.#server.on("connection", (socket) => this.#handleConnection(socket));
     }
 
