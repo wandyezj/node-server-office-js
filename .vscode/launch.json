@@ -5,7 +5,7 @@
             "name": "Start Debug",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceFolder}/dist/index.bundle.js",
+            "program": "${workspaceFolder}/dist/server.js",
             "runtimeArgs": ["--watch"],
             "preLaunchTask": "Watch Compile Debug",
             "autoAttachChildProcesses": true,

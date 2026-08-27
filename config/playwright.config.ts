@@ -1,7 +1,7 @@
 import { defineConfig } from "@playwright/test";
 import path from "path";
 
-const testDir = path.resolve("test");
+const testDir = path.resolve(__dirname, "..", "test");
 
 import config from "../src/server/config.json";
 

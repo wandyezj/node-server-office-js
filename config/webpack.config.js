@@ -98,11 +98,11 @@ module.exports = async (env, options) => {
         target: "node",
         devtool: isDevelopment ? "inline-source-map" : undefined,
         performance: { hints: false },
-        entry: { index: "./src/server/index.ts" },
+        entry: { server: "./src/server/server.ts" },
         output: {
-            filename: "[name].bundle.js",
+            filename: "[name].js",
             path: outputPath,
-            clean: true
+            clean: true,
         },
         resolve: {
             extensions: [".ts", ".json", ".js"],
